@@ -31,9 +31,11 @@ class ImageSelectionDialog extends StatefulWidget {
 
 class _ImageSelectionDialogState extends State<ImageSelectionDialog> {
 
-  List<Widget> imageSliders;
+  bool _loading = true;
+
+  List<Widget> _imageSliders;
   String _selected;
-  List<String> displayImgList = List<String>();
+  List<String> _displayImgList = List<String>();
 
   PickedFile _pickedImageFile;
   File _croppedImageFile;
@@ -44,14 +46,34 @@ class _ImageSelectionDialogState extends State<ImageSelectionDialog> {
 
   @override
   void initState() {
-    displayImgList.addAll(widget.imgList);
-    setInitialImage();
+    _displayImgList.addAll(widget.imgList);
+    _setInitialImage();
     super.initState();
   }
 
   @override
+  void dispose() {
+    _wipeImageCache();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    imageSliders = _returnImages();
+    _imageSliders = _returnImages();
+    return !kIsWeb && defaultTargetPlatform == TargetPlatform.android?
+    FutureBuilder<void>(
+      future: retrieveLostData(),
+      builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+        if (snapshot.hasError) {
+          return mainDialog(error: snapshot.error);
+        } else {
+          return mainDialog();
+        }
+      },
+    ) : mainDialog();
+  }
+
+  Widget mainDialog({String error}) {
     return SimpleDialog(
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(displayWidth(context) * 0.07))),
@@ -70,25 +92,28 @@ class _ImageSelectionDialogState extends State<ImageSelectionDialog> {
           height: displayHeight(context) * 0.32,
           child: ClipRRect(
             borderRadius:
-                BorderRadius.all(Radius.circular(displayWidth(context) * 0.07)),
+            BorderRadius.all(Radius.circular(displayWidth(context) * 0.07)),
             child: Container(
-              child: CarouselSlider(
+              child: error != null? Text(error) : _loading? SizedBox(
+                  width: displayWidth(context) * 0.9,
+                  child: loadingIndicator(context: context))
+                  : CarouselSlider(
                 options: CarouselOptions(
-                  autoPlay: false,
-                  aspectRatio: 1.0,
-                  enlargeCenterPage: true,
-                  viewportFraction: 0.7,
-                  onPageChanged: (selectionIndex, reason) {
-                    _selected = displayImgList[selectionIndex];
-                  }
+                    autoPlay: false,
+                    aspectRatio: 1.0,
+                    enlargeCenterPage: true,
+                    viewportFraction: 0.7,
+                    onPageChanged: (selectionIndex, reason) {
+                      _selected = _displayImgList[selectionIndex];
+                    }
                 ),
-                items: imageSliders,
+                items: _imageSliders,
               ),
             ),
           ),
         ),
-        _optionTile(text: 'Take Photo'.i18n, icon: Icons.camera_alt),
-        _optionTile(text: 'Upload'.i18n, icon: Icons.file_upload),
+        _optionTile(text: 'Take Photo'.i18n, icon: Icons.camera_alt, source: ImageSource.camera),
+        _optionTile(text: 'Upload'.i18n, icon: Icons.file_upload, source: ImageSource.gallery),
         verticalSpace(context, 0.02),
         _buttonRow()
       ],
@@ -96,6 +121,7 @@ class _ImageSelectionDialogState extends State<ImageSelectionDialog> {
   }
 
   void _onImageButtonPressed({ImageSource source, BuildContext context}) async {
+    _setLoading(true);
     try {
       final pickedFile = await _picker.getImage(source: source, maxHeight: 1080, maxWidth: 1920);
       _pickedImageFile = pickedFile;
@@ -117,17 +143,19 @@ class _ImageSelectionDialogState extends State<ImageSelectionDialog> {
           : null;
         if (_croppedImageFile != null) {
           setState(() {
-            displayImgList.insert(displayImgList.indexOf(_selected), _croppedImageFile.path);
+            _displayImgList.insert(_displayImgList.indexOf(_selected), _croppedImageFile.path);
             _selected = _croppedImageFile.path;
           });
         }
+        _pickedImageFile = null;
     } catch (e) {
       _pickImageError = e;
       print(e);
     }
+    _setLoading(false);
   }
 
-  Future<void> retrieveLostData() async {
+  Future<void> _retrieveLostData() async {
     final LostData response = await _picker.getLostData();
     if (response.isEmpty) {
       return;
@@ -141,19 +169,26 @@ class _ImageSelectionDialogState extends State<ImageSelectionDialog> {
     }
   }
 
-  void setInitialImage() {
-    if (displayImgList.contains(widget.currentImage)) displayImgList.remove(widget.currentImage);
-    displayImgList.insert(0, widget.currentImage);
+  void _setInitialImage() {
+    if (_displayImgList.contains(widget.currentImage)) _displayImgList.remove(widget.currentImage);
+    _displayImgList.insert(0, widget.currentImage);
     _selected = widget.currentImage;
+    _setLoading(false);
   }
 
-  void wipeImageCache() async {
+  void _setLoading(bool condition) {
+    setState(() {
+      _loading = condition;
+    });
+  }
+
+  void _wipeImageCache() async {
     if (_croppedImageFile != null) await Directory(path.dirname(_croppedImageFile.path)).delete(recursive: true);
     if (_pickedImageFile != null) await Directory(path.dirname(_pickedImageFile.path))?.delete(recursive: true);
     imageCache.clear();
   }
 
-  Future<String> saveImage() async {
+  Future<String> _saveImage() async {
     String finalImagePath;
     if (!widget.imgList.contains(_selected) && widget.currentImage != _selected) {
       final String appDirectoryPath = (await getApplicationDocumentsDirectory()).path;
@@ -180,7 +215,6 @@ class _ImageSelectionDialogState extends State<ImageSelectionDialog> {
             "Cancel",
             style: GoogleFonts.notoSans(
                 color: Colors.grey,
-                //fontWeight: FontWeight.bold,
                 fontSize: displayWidth(context) * 0.04),
           ),
           onPressed: () {
@@ -191,23 +225,18 @@ class _ImageSelectionDialogState extends State<ImageSelectionDialog> {
           child: Text(
             "Select",
             style: GoogleFonts.notoSans(
-                color: (_selected == null || _selected.trim() == '')
-                    ? primaryFaded()
-                    : primaryRed(),
+                color: (_selected == null || _loading == true)? primaryFaded() : primaryRed(),
                 fontWeight: FontWeight.bold,
                 fontSize: displayWidth(context) * 0.04),
           ),
-          onPressed: (_selected == null || _selected.trim() == '')
-              ? null :
-              () {
-                  saveImage().then((value) {print('Popped val: $value'); Navigator.pop(context, value);});
-                },
+          onPressed: (_selected == null || _loading == true)?
+          null : () {_saveImage().then((value) => Navigator.pop(context, value));},
         ),
       ],
     );
   }
 
-  Widget _optionTile({@required String text, @required IconData icon}) {
+  Widget _optionTile({@required String text, @required IconData icon, @required ImageSource source}) {
     return MaterialButton(
       height: displayHeight(context) * 0.07,
       color: Colors.white,
@@ -215,23 +244,23 @@ class _ImageSelectionDialogState extends State<ImageSelectionDialog> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Icon(icon, color: primaryRed(), size: displayWidth(context) * 0.07),
+          Icon(icon, color: (_selected == null || _loading == true)? primaryFaded() : primaryRed(), size: displayWidth(context) * 0.07),
           horizontalSpace(context, 0.03),
           Text(text,
               style: GoogleFonts.notoSans(
-                  color: Colors.black54,
+                  color: (_selected == null || _loading == true)? Colors.grey : Colors.black54,
                   fontWeight: FontWeight.normal,
                   fontSize: displayWidth(context) * 0.05)),
         ],
       ),
-      onPressed: () {
-        _onImageButtonPressed(context: context, source: ImageSource.camera);
+      onPressed: (_selected == null || _loading == true)? null : () {
+        _onImageButtonPressed(context: context, source: source);
       },
     );
   }
 
   List<Widget> _returnImages() {
-    return displayImgList
+    return _displayImgList
         .map((item) => Container(
               child: Container(
                 alignment: Alignment.topCenter,
@@ -240,7 +269,7 @@ class _ImageSelectionDialogState extends State<ImageSelectionDialog> {
                         Radius.circular(displayWidth(context) * 0.5 * 0.2)),
                     child: Stack(
                       children: <Widget>[
-                        getImageFile(item),
+                        _getImageFile(item),
                         Positioned(
                           bottom: 0.0,
                           left: 0.0,
@@ -276,7 +305,7 @@ class _ImageSelectionDialogState extends State<ImageSelectionDialog> {
         .toList();
   }
 
-  getImageFile(item) {
+  _getImageFile(item) {
     if (item.split('/')[0] == 'assets') {
       return Image.asset(
         item,
@@ -291,6 +320,20 @@ class _ImageSelectionDialogState extends State<ImageSelectionDialog> {
         height: displayWidth(context) * 0.55,
         width: displayWidth(context) * 0.55,
       );
+    }
+  }
+
+  Future<void> retrieveLostData() async {
+    final LostData response = await _picker.getLostData();
+    if (response.isEmpty) {
+      return;
+    }
+    if (response.file != null) {
+      setState(() {
+        _pickedImageFile = response.file;
+      });
+    } else {
+      _retrieveDataError = response.exception.code;
     }
   }
 

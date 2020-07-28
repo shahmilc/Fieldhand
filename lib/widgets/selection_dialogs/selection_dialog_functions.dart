@@ -1,6 +1,7 @@
 import 'package:fieldhand/computation/general_functions.dart';
 import 'package:fieldhand/widgets/flutter_rounded_date_picker-1.0.4-local/rounded_picker.dart';
 import 'package:fieldhand/widgets/flutter_rounded_date_picker-1.0.4-local/src/material_rounded_date_picker_style.dart';
+import 'package:fieldhand/widgets/selection_dialogs/image_selection_dialog.dart';
 import 'package:fieldhand/widgets/selection_dialogs/options_dialog.dart';
 import 'package:fieldhand/widgets/style_elements.dart';
 import 'package:flutter/material.dart';
@@ -193,4 +194,23 @@ Widget dateInputButton(
       ),
     ],
   );
+}
+
+Future<void> showImageSelectionDialog({
+  @required BuildContext context,
+  @required String header,
+  @required String currentImage,
+  @required List defaultImages,
+  @required String objectSerial,
+  @required ValueSetter fieldSetter,
+  @required Function handleReturn}) async {
+  await showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (_) => ImageSelectionDialog(
+        headerTitle: header,
+        imgList: defaultImages,
+        currentImage: currentImage,
+        objectSerial: objectSerial,
+      )).then((selection) => handleReturn(fieldSetter: fieldSetter, returnValue: selection));
 }

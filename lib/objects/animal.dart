@@ -175,6 +175,8 @@ class Animal {
 
   set setStatus(String value) => this.currentStatus = value;
 
+  set setThumbnail(String value) => this.thumbLocation = value;
+
   // Setters for date fields
   set setBirthDate(String value) => this.birthDate = value;
 

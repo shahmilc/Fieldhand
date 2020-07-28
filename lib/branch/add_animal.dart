@@ -34,6 +34,9 @@ class _AddAnimalState extends State<AddAnimal> {
   ValueSetter setterAcquisition;
   ValueSetter setterStatus;
 
+  // Setter wrapper function for image selection
+  ValueSetter setterThumbnail;
+
   //Setter wrapper functions for date fields
   ValueSetter setterBirthDate;
 
@@ -61,20 +64,15 @@ class _AddAnimalState extends State<AddAnimal> {
         child: Column(
           children: <Widget>[
             verticalSpace(context, 0.07),
-            Column(
-              children: <Widget>[
-                imageThumbnail(
-                    context: context, size: 0.4, color: secondaryRed(), imagePath: animal.thumbLocation),
-                verticalSpace(context, 0.01),
-                Text(
-                  "Image".i18n,
-                  style: GoogleFonts.notoSans(
-                      color: Colors.white,
-                      fontSize: displayWidth(context) * 0.03,
-                      fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
+            imageThumbnail(
+              context: context, size: 0.45,
+              color: secondaryRed(),
+              imagePath: animal.thumbLocation,
+              editable: true,
+              objectSerial: animal.serial,
+              defaultImages: Animal.imgList,
+              fieldSetter: setterThumbnail,
+              handleReturn: handleReturn),
             verticalSpace(context, 0.03),
             inputForm(
                 context: context,
@@ -152,12 +150,6 @@ class _AddAnimalState extends State<AddAnimal> {
                 icon: Icons.view_array,
                 invert: true),
             verticalSpace(context, 0.03),
-            MaterialButton(
-              child: Text("Tap"),
-              onPressed: () {
-                showImageSelectionDialog(context: context, header: "Image", currentImage: animal.thumbLocation);
-              }
-            ),
             verticalSpace(context, 0.06),
             generalBlueButton(
                 context: context,
@@ -173,27 +165,6 @@ class _AddAnimalState extends State<AddAnimal> {
     );
   }
 
-  Future<String> showImageSelectionDialog({@required BuildContext context,
-        @required String header, @required String currentImage}) async {
-    var selected;
-    await showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (_) => ImageSelectionDialog(
-          headerTitle: header,
-          imgList: Animal.imgList,
-          currentImage: currentImage,
-          objectSerial: animal.serial,
-        )).then((selection) {
-          setState(() {
-            print(selection);
-            if (selection != null) animal.thumbLocation = selection;
-            print(animal.thumbLocation);
-          });
-    });
-    return selected;
-  }
-
   handleReturn(
       {@required ValueSetter fieldSetter, @required String returnValue}) {
     setState(() {
@@ -207,6 +178,9 @@ class _AddAnimalState extends State<AddAnimal> {
     setterSex = (selection) => animal.setSex = selection;
     setterAcquisition = (selection) => animal.setAcquisition = selection;
     setterStatus = (selection) => animal.setStatus = selection;
+
+    // Setter wrapper function for image selection
+    setterThumbnail = (selection) => animal.setThumbnail = selection;
 
     //Setter wrapper functions for date fields
     setterBirthDate = (date) => animal.setBirthDate = date;

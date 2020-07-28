@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:fieldhand/widgets/custom_icons_icons.dart';
+import 'package:fieldhand/widgets/selection_dialogs/selection_dialog_functions.dart';
 import 'package:fieldhand/widgets/style_elements.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fieldhand/screen_sizing.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:i18n_extension/default.i18n.dart';
 
 Widget generalBlueButton({@required BuildContext context, @required String text, void Function() function}) {
   return Container(
@@ -29,7 +31,18 @@ Widget generalBlueButton({@required BuildContext context, @required String text,
   );
 }
 
-Widget imageThumbnail({@required BuildContext context, String imagePath = 'assets/img/objectImages/default.png', @required double size, @required Color color}) {
+Widget imageThumbnail(
+    {@required BuildContext context,
+      String imagePath = 'assets/img/objectImages/default.png',
+      @required double size,
+      @required Color color,
+      bool editable = false,
+      String editHeader,
+      List defaultImages,
+      ValueSetter fieldSetter,
+      String objectSerial,
+      Function handleReturn}) {
+  if (editHeader == null) editHeader = "Image".i18n;
   return Container(
     width: displayWidth(context) * size,
     height: displayWidth(context) * size,
@@ -44,18 +57,21 @@ Widget imageThumbnail({@required BuildContext context, String imagePath = 'asset
           alignment: Alignment.bottomCenter,
           children: <Widget>[
             getImageFile(item: imagePath),
-            SizedBox(
+            if (editable) SizedBox(
               height: displayWidth(context) * size * 0.25,
               width: displayWidth(context) * size,
-              child: Container(
-                color: primaryRed().withOpacity(0.85),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Icon(CustomIcons.images, color: Colors.white.withOpacity(0.9),),
-                    horizontalSpace(context, 0.03),
-                    Text("Edit", style: GoogleFonts.notoSans(color: Colors.white.withOpacity(0.9), fontWeight: FontWeight.bold, fontSize: displayWidth(context) * 0.04),)
-                  ],
+              child: InkWell(
+                onTap: () => showImageSelectionDialog(context: context, header: editHeader, currentImage: imagePath, defaultImages: defaultImages, fieldSetter: fieldSetter, objectSerial: objectSerial, handleReturn: handleReturn),
+                child: Container(
+                  color: primaryRed().withOpacity(0.85),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(CustomIcons.images, color: Colors.white.withOpacity(0.9),),
+                      horizontalSpace(context, 0.03),
+                      Text("Edit".i18n, style: GoogleFonts.notoSans(color: Colors.white.withOpacity(0.9), fontWeight: FontWeight.bold, fontSize: displayWidth(context) * 0.04),)
+                    ],
+                  ),
                 ),
               ),
             ),
