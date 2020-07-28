@@ -54,8 +54,7 @@ class _ImageSelectionDialogState extends State<ImageSelectionDialog> {
     imageSliders = _returnImages();
     return SimpleDialog(
       shape: RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.all(Radius.circular(displayWidth(context) * 0.07))),
+          borderRadius: BorderRadius.all(Radius.circular(displayWidth(context) * 0.07))),
       titlePadding: const EdgeInsets.all(0),
       contentPadding: EdgeInsets.only(bottom: 0),
       title: Column(
