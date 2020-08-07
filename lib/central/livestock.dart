@@ -1,7 +1,9 @@
 import 'package:fieldhand/branch/add_animal.dart';
 import 'package:fieldhand/computation/navigation.dart';
 import 'package:fieldhand/objects/animal.dart';
+import 'package:fieldhand/widgets/central_sliver_app_bar.dart';
 import 'package:fieldhand/widgets/drawer.dart';
+import 'package:fieldhand/widgets/marquee.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,7 +26,8 @@ class Livestock extends StatefulWidget {
 
 class _LivestockState extends State<Livestock> {
 
-  List<Animal> animals = List<Animal>();
+  List<Animal> _animals = List<Animal>();
+  List<Animal> _displayAnimals = List<Animal>();
 
   @override
   void initState() {
@@ -41,187 +44,15 @@ class _LivestockState extends State<Livestock> {
           drawer: SideDrawer(),
           body: CustomScrollView(
             slivers: <Widget>[
-              SliverAppBar(
-                leading: Builder(
-                  builder: (context) => Padding(
-                    padding:
-                    EdgeInsets.only(bottom: displayHeight(context) * 0.015),
-                    child: IconButton(
-                        splashColor: Colors.transparent,
-                        focusColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        onPressed: () {
-                          Scaffold.of(context).openDrawer();
-                        },
-                        icon: Icon(
-                          Icons.menu,
-                          color: Colors.white,
-                          size: displayWidth(context) * 0.07,
-                        )),
-                  ),
-                ),
-                floating: true,
-                expandedHeight: displayHeight(context) * 0.3,
-                // Display a placeholder widget to visualize the shrinking size.
-                elevation: 0,
-                backgroundColor: Colors.transparent,
-                flexibleSpace: FlexibleSpaceBar(
-                  collapseMode: CollapseMode.pin,
-                  background: Stack(
-                    children: <Widget>[
-                      Container(
-                        padding: EdgeInsets.all(0),
-                        height: displayHeight(context) * 0.25,
-                        width: displayWidth(context),
-                        decoration: BoxDecoration(
-                          color: Color(0xFFFF6159),
-                          borderRadius: BorderRadius.only(
-                              bottomLeft:
-                              Radius.circular(displayWidth(context) * 0.15),
-                              bottomRight:
-                              Radius.circular(displayWidth(context) * 0.15)),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                              top: displayHeight(context) * 0.1,
-                              left: displayWidth(context) * 0.13),
-                          child: Container(
-                              child: Text(
-                                "Livestock".i18n,
-                                style: GoogleFonts.notoSans(
-                                    textStyle: TextStyle(color: Colors.white),
-                                    fontSize: displayWidth(context) * 0.08,
-                                    fontWeight: FontWeight.bold),
-                              )),
-                        ),
-                      ),
-                      Padding(
-                        padding:
-                        EdgeInsets.only(top: displayHeight(context) * 0.2),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Container(
-                              width: displayWidth(context) * 0.21,
-                              height: displayHeight(context) * 0.055,
-                              child: RaisedButton(
-                                elevation: 6,
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      displayWidth(context) * 0.05),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Icon(
-                                      Icons.add,
-                                      size: displayWidth(context) * 0.04,
-                                      color: Color(0xFFFF998B),
-                                    ),
-                                    Text(
-                                      "Add".i18n,
-                                      style: GoogleFonts.notoSans(
-                                          color: Color(0xFFFF998B),
-                                          textStyle:
-                                          TextStyle(color: Colors.white),
-                                          fontSize: displayWidth(context) * 0.035,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
-                                ),
-                                onPressed: () {navigate(context: context, page: AddAnimal(), direction: 'right', fromDrawer: false);},
-                              ),
-                            ),
-                            horizontalSpace(context, 0.02),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  top: displayHeight(context) * 0.02),
-                              child: Container(
-                                width: displayWidth(context) * 0.3,
-                                height: displayHeight(context) * 0.055,
-                                child: RaisedButton(
-                                  elevation: 6,
-                                  color: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                        displayWidth(context) * 0.05),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.search,
-                                        size: displayWidth(context) * 0.05,
-                                        color: Color(0xFFFF998B),
-                                      ),
-                                      Text(
-                                        "Search".i18n,
-                                        style: GoogleFonts.notoSans(
-                                            color: Color(0xFFFF998B),
-                                            textStyle:
-                                            TextStyle(color: Colors.white),
-                                            fontSize:
-                                            displayWidth(context) * 0.035,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                  onPressed: () {},
-                                ),
-                              ),
-                            ),
-                            horizontalSpace(context, 0.02),
-                            Container(
-                              width: displayWidth(context) * 0.21,
-                              height: displayHeight(context) * 0.055,
-                              child: RaisedButton(
-                                elevation: 6,
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      displayWidth(context) * 0.05),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Icon(
-                                      Icons.sort,
-                                      size: displayWidth(context) * 0.04,
-                                      color: Color(0xFFFF998B),
-                                    ),
-                                    Text(
-                                      "Sort".i18n,
-                                      style: GoogleFonts.notoSans(
-                                          color: Color(0xFFFF998B),
-                                          textStyle:
-                                          TextStyle(color: Colors.white),
-                                          fontSize: displayWidth(context) * 0.035,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
-                                ),
-                                onPressed: () {},
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
+              CentralSliverAppBar(headerText: 'Livestock'.i18n, onSearch: (value) => _filterElements(value)),
               SliverList(
                 // Use a delegate to build items as they're scrolled on screen.
                 delegate: SliverChildBuilderDelegate(
                   // The builder function returns a ListTile with a title that
                   // displays the index of the current item.
-                      (context, index) => ListTile(title: Text(animals[0].displayIdentifier)),
+                      (context, index) => _animalTile(index: index),
                   // Builds 1000 ListTiles
-                  childCount: animals.length,
+                  childCount: _displayAnimals.length,
                 ),
               )
             ],
@@ -231,11 +62,263 @@ class _LivestockState extends State<Livestock> {
 
   getAnimals() async {
     DatabaseHelper helper = DatabaseHelper.instance;
-    var hold = await helper.queryAll();
+    _animals = await helper.queryAll();
     setState(() {
-      animals = hold;
+      _displayAnimals.addAll(_animals);
     });
-    print(animals);
+  }
+  _animalTile({@required int index}) {
+    return Center(
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: displayHeight(context) * 0.01),
+        height: displayHeight(context) * 0.15,
+        width: displayWidth(context) * 0.9,
+        child: OutlineButton(
+          highlightedBorderColor: primaryRed(),
+          color: Colors.grey[50],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(displayWidth(context) * 0.025),
+          ),
+          child: Row(
+            children: <Widget>[
+              imageThumbnail(context: context, size: 0.22, color: secondaryRed(), imagePath: _displayAnimals[index].thumbLocation),
+              horizontalSpace(context, 0.05),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    SizedBox(
+                      width: displayWidth(context) * 0.34,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          identifierText(index: index),
+                          typeText(index: index)
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: displayWidth(context) * 0.2,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: <Widget>[
+                          statusText(index: index),
+                          tasksText(index: index)
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          onPressed: () {_showSheet(index: index);},
+        ),
+      ),
+    );
+  }
+
+  Widget identifierText({@required int index}) {
+    return Marquee(
+      direction: Axis.horizontal,
+      forwardTimeFactor: 1.5,
+      pauseDuration: const Duration(milliseconds: 800),
+      child: Text(
+        _displayAnimals[index].displayIdentifier,
+        style: GoogleFonts.notoSans(
+            color: primaryRed(),
+            fontSize: displayWidth(context) * 0.053,
+            fontWeight: FontWeight.bold),
+        maxLines: 1,
+      ),
+    );
+  }
+
+  Widget typeText({@required int index}) {
+    return Text(
+      '${_displayAnimals[index].sex} ${_displayAnimals[index].animalType}',
+      style: GoogleFonts.notoSans(color: Colors.black45, fontSize: displayWidth(context) * 0.045),
+      maxLines: 1,
+    );
+  }
+
+  Widget statusText({@required int index, double fontSizeFactor = 1.0}) {
+    String status = _displayAnimals[index].currentStatus;
+    return Text(status,
+      style: GoogleFonts.notoSans(
+          color: (status == 'Healthy')? Colors.green : (status == 'Ill')? Colors.yellow : (status == 'Pregnant')? Colors.pink : (status == 'Sold')? Colors.blue : Colors.black,
+          fontSize: displayWidth(context) * 0.036 * fontSizeFactor,
+          fontWeight: FontWeight.bold),
+      maxLines: 1,
+    );
+  }
+
+  Widget tasksText({@required int index}) {
+    return Text('0 Tasks', maxLines: 1);
+  }
+
+  void _showSheet({@required int index}) {
+    showModalBottomSheet(
+      backgroundColor: Colors.transparent,
+        context: context,
+        isScrollControlled: true, // set this to true
+        builder: (_) {
+          return DraggableScrollableSheet(
+            expand: false,
+              builder: (BuildContext context,
+                  ScrollController _scrollController) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(displayWidth(context) * 0.12))
+                  ),
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(displayWidth(context) * 0.12)),
+                      child: Column(
+                        children: [
+                          ButtonBar(
+                            alignment: MainAxisAlignment.spaceBetween,
+                            buttonPadding: EdgeInsets.zero,
+                            children: [
+                              sheetButton(text: 'Edit'.i18n, icon: Icons.edit, onPressed: () {}),
+                              sheetButton(text: 'Add Task'.i18n, icon: Icons.add_circle_outline, onPressed: () {}),
+                              sheetButton(text: 'Close'.i18n, icon: Icons.close, onPressed: () {Navigator.pop(context);}),
+                            ],
+                          ),
+                          verticalSpace(context, 0.05),
+                          imageThumbnail(context: context, size: 0.5, color: secondaryRed(), imagePath: _displayAnimals[index].thumbLocation),
+                          verticalSpace(context, 0.02),
+                          titleText(index: index),
+                          verticalSpace(context, 0.03),
+                          textDivider(context: context, text: 'Details'.i18n, color: Colors.black38, scaleFactor: 1.2),
+                          verticalSpace(context, 0.03),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: displayWidth(context) * 0.5,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    labelText(text: "Type".i18n),
+                                    verticalSpace(context, 0.01),
+                                    labelText(text: "Sex".i18n),
+                                    verticalSpace(context, 0.01),
+                                    labelText(text: "Status".i18n)
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: displayWidth(context) * 0.5,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _displayAnimals[index].animalType,
+                                      style: GoogleFonts.notoSans(color: Colors.black45, fontSize: displayWidth(context) * 0.045),
+                                      maxLines: 1,
+                                    ),
+                                    verticalSpace(context, 0.01),
+                                    Text(
+                                      _displayAnimals[index].sex,
+                                      style: GoogleFonts.notoSans(color: Colors.black45, fontSize: displayWidth(context) * 0.045),
+                                      maxLines: 1,
+                                    ),
+                                    verticalSpace(context, 0.01),
+                                    statusText(index: index, fontSizeFactor: 1.3),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                          verticalSpace(context, 0.05),
+                          deleteButton(context: context, text: 'Delete'.i18n, function: () {}),
+                          verticalSpace(context, 0.05),
+                        ],
+                      ),
+                    ),
+                  )
+                );
+              }
+          );
+        });
+  }
+
+  Widget sheetButton({@required String text, @required IconData icon, @required Function onPressed}) {
+    return SizedBox(
+      width: displayWidth(context) / 3,
+      height: displayHeight(context) * 0.09,
+      child: FlatButton(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Icon(icon, color: secondaryRed(), size: displayWidth(context) * 0.06,),
+            Text(text, style: GoogleFonts.notoSans(color: secondaryRed(), fontSize: displayWidth(context) * 0.032, fontWeight: FontWeight.bold),)
+          ],
+        ),
+        onPressed: onPressed,
+        splashColor: Colors.black12,
+      ),
+    );
+  }
+
+  Widget titleText({@required int index}) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: displayWidth(context) * 0.1),
+      child: Text(_displayAnimals[index].displayIdentifier,
+        textAlign: TextAlign.center,
+        style: GoogleFonts.notoSans(color: primaryRed(),
+            fontSize: displayWidth(context) * 0.055,
+            fontWeight: FontWeight.bold),
+        maxLines: 2,),
+    );
+  }
+
+  Widget labelText({@required String text}) {
+    return Text("$text:   ", style: GoogleFonts.notoSans(color: Colors.black26, fontSize: displayWidth(context) * 0.045),);
+  }
+
+  Widget deleteButton({@required BuildContext context, @required String text, void Function() function}) {
+    return Container(
+      width: displayWidth(context) * 0.75,
+      height: displayHeight(context) * 0.07,
+      child: RaisedButton(
+        elevation: 5,
+        color: primaryRed(),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(displayWidth(context) * 0.015),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.delete, color: Colors.white, size: displayWidth(context) * 0.07,),
+            horizontalSpace(context, 0.03),
+            Text(
+              text,
+              style: GoogleFonts.notoSans(
+                  textStyle: TextStyle(color: Colors.white),
+                  fontSize: displayWidth(context) * 0.05,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: displayWidth(context) * 0.005),
+            )
+          ],
+        ),
+        onPressed: function,
+      ),
+    );
+  }
+
+
+  void _filterElements(String query) {
+    query = query.toUpperCase();
+    setState(() {
+      _displayAnimals = _animals.where((Animal searchAnimal) => searchAnimal.identifier.toUpperCase().contains(query)).toList();
+    });
   }
 
 }

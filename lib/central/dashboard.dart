@@ -39,7 +39,7 @@ class _DashboardState extends State<Dashboard> {
                 leading: Builder(
                   builder: (context) => Padding(
                     padding:
-                        EdgeInsets.only(bottom: displayHeight(context) * 0.015),
+                    EdgeInsets.only(bottom: displayHeight(context) * 0.015),
                     child: IconButton(
                         splashColor: Colors.transparent,
                         focusColor: Colors.transparent,
@@ -71,9 +71,9 @@ class _DashboardState extends State<Dashboard> {
                           color: Color(0xFFFF6159),
                           borderRadius: BorderRadius.only(
                               bottomLeft:
-                                  Radius.circular(displayWidth(context) * 0.15),
+                              Radius.circular(displayWidth(context) * 0.15),
                               bottomRight:
-                                  Radius.circular(displayWidth(context) * 0.15)),
+                              Radius.circular(displayWidth(context) * 0.15)),
                         ),
                         child: Padding(
                           padding: EdgeInsets.only(
@@ -81,17 +81,17 @@ class _DashboardState extends State<Dashboard> {
                               left: displayWidth(context) * 0.13),
                           child: Container(
                               child: Text(
-                            "Dashboard".i18n,
-                            style: GoogleFonts.notoSans(
-                                textStyle: TextStyle(color: Colors.white),
-                                fontSize: displayWidth(context) * 0.08,
-                                fontWeight: FontWeight.bold),
-                          )),
+                                "Livestock".i18n,
+                                style: GoogleFonts.notoSans(
+                                    textStyle: TextStyle(color: Colors.white),
+                                    fontSize: displayWidth(context) * 0.08,
+                                    fontWeight: FontWeight.bold),
+                              )),
                         ),
                       ),
                       Padding(
                         padding:
-                            EdgeInsets.only(top: displayHeight(context) * 0.2),
+                        EdgeInsets.only(top: displayHeight(context) * 0.2),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
@@ -107,7 +107,7 @@ class _DashboardState extends State<Dashboard> {
                                 ),
                                 child: Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     Icon(
                                       Icons.add,
@@ -119,7 +119,7 @@ class _DashboardState extends State<Dashboard> {
                                       style: GoogleFonts.notoSans(
                                           color: Color(0xFFFF998B),
                                           textStyle:
-                                              TextStyle(color: Colors.white),
+                                          TextStyle(color: Colors.white),
                                           fontSize: displayWidth(context) * 0.035,
                                           fontWeight: FontWeight.bold),
                                     ),
@@ -144,7 +144,7 @@ class _DashboardState extends State<Dashboard> {
                                   ),
                                   child: Row(
                                     mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
+                                    MainAxisAlignment.spaceAround,
                                     children: <Widget>[
                                       Icon(
                                         Icons.search,
@@ -156,9 +156,9 @@ class _DashboardState extends State<Dashboard> {
                                         style: GoogleFonts.notoSans(
                                             color: Color(0xFFFF998B),
                                             textStyle:
-                                                TextStyle(color: Colors.white),
+                                            TextStyle(color: Colors.white),
                                             fontSize:
-                                                displayWidth(context) * 0.035,
+                                            displayWidth(context) * 0.035,
                                             fontWeight: FontWeight.bold),
                                       ),
                                     ],
@@ -180,7 +180,7 @@ class _DashboardState extends State<Dashboard> {
                                 ),
                                 child: Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     Icon(
                                       Icons.sort,
@@ -192,7 +192,7 @@ class _DashboardState extends State<Dashboard> {
                                       style: GoogleFonts.notoSans(
                                           color: Color(0xFFFF998B),
                                           textStyle:
-                                              TextStyle(color: Colors.white),
+                                          TextStyle(color: Colors.white),
                                           fontSize: displayWidth(context) * 0.035,
                                           fontWeight: FontWeight.bold),
                                     ),

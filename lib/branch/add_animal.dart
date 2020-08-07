@@ -1,20 +1,18 @@
+import 'package:fieldhand/central/livestock.dart';
 import 'package:fieldhand/computation/general_functions.dart';
 import 'package:fieldhand/database/database_core.dart';
+import 'package:fieldhand/database/db_function_bridge.dart';
 import 'package:fieldhand/widgets/add_object_elements.dart';
 import 'package:fieldhand/widgets/custom_icons_icons.dart';
 import 'package:fieldhand/widgets/elements.dart';
-import 'package:fieldhand/widgets/flutter_rounded_date_picker-1.0.4-local/src/material_rounded_date_picker_style.dart';
 import 'package:fieldhand/widgets/selection_dialogs/selection_dialog_functions.dart';
-import 'file:///C:/Users/shahm/FlutterProjects/fieldhand/lib/widgets/selection_dialogs/image_selection_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fieldhand/translations/login.i18n.dart';
 import 'package:fieldhand/screen_sizing.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:fieldhand/computation/navigation.dart';
 import 'package:fieldhand/objects/animal.dart';
-import 'package:i18n_extension/i18n_widget.dart';
-import 'package:fieldhand/widgets/flutter_rounded_date_picker-1.0.4-local/rounded_picker.dart';
+
 
 class AddAnimal extends StatefulWidget {
   AddAnimal({Key key}) : super(key: key);
@@ -39,6 +37,37 @@ class _AddAnimalState extends State<AddAnimal> {
 
   //Setter wrapper functions for date fields
   ValueSetter setterBirthDate;
+  ValueSetter setterDeathDate;
+  ValueSetter setterPurchaseDate;
+  ValueSetter setterSoldDate;
+  ValueSetter setterDueDate;
+
+  initializeWrapperFunctions() {
+
+    /// Setter wrapper functions for options fields
+    setterAnimalType = (selection) {
+      animal.setAnimalType = selection;
+      /// If selected type is a default type, and selected image is a default image, set type to corresponding image
+      if (Animal.defaultTypes.contains(selection) && Animal.imgList.contains(animal.thumbLocation)) {
+        String matchingImagePath = Animal.imgList.where((String imagePath) => getImageName(imagePath) == selection).first;
+        setterThumbnail(matchingImagePath);
+      }
+    };
+
+    setterSex = (selection) => animal.setSex = selection;
+    setterAcquisition = (selection) => animal.setAcquisition = selection;
+    setterStatus = (selection) => animal.setStatus = selection;
+
+    /// Setter wrapper function for image selection
+    setterThumbnail = (imagePath) => animal.setThumbnail = imagePath;
+
+    ///Setter wrapper functions for date fields
+    setterBirthDate = (date) => animal.setBirthDate = date;
+    setterDeathDate = (date) => animal.setDeathDate = date;
+    setterPurchaseDate = (date) => animal.setPurchaseDate = date;
+    setterSoldDate = (date) => animal.soldDate = date;
+    setterDueDate = (date) => animal.dueDate = date;
+  }
 
   @override
   void dispose() {
@@ -57,9 +86,8 @@ class _AddAnimalState extends State<AddAnimal> {
     return WillPopScope(
       onWillPop: () => onBackPress(context: context),
       child: Scaffold(
-          body: Builder(
-              builder: (innerContext) => addBody(
-        context: innerContext,
+          body: addBody(
+            context: context,
         header: 'Add Animal'.i18n,
         child: Column(
           children: <Widget>[
@@ -76,8 +104,8 @@ class _AddAnimalState extends State<AddAnimal> {
             verticalSpace(context, 0.03),
             inputForm(
                 context: context,
-                header: 'Name / ID'.i18n,
-                hint: 'Enter Name / Identifier',
+                header: 'Name / ID (required)'.i18n,
+                hint: 'Enter Name / Identifier'.i18n,
                 icon: Icons.create,
                 onChanged: (value) {
                   animal.displayIdentifier = value;
@@ -87,8 +115,8 @@ class _AddAnimalState extends State<AddAnimal> {
                 invert: true),
             verticalSpace(context, 0.03),
             optionsInputButton(
-                context: innerContext,
-                header: 'Type'.i18n,
+                context: context,
+                header: 'Type (required)'.i18n,
                 hint: 'Select Type'.i18n,
                 icon: CustomIcons.horse_head,
                 objectTable: Animal.table,
@@ -101,7 +129,7 @@ class _AddAnimalState extends State<AddAnimal> {
             verticalSpace(context, 0.03),
             optionsInputButton(
                 context: context,
-                header: 'Sex'.i18n,
+                header: 'Sex (required)'.i18n,
                 hint: 'Select Sex'.i18n,
                 icon: CustomIcons.venus_mars,
                 objectTable: Animal.table,
@@ -109,6 +137,53 @@ class _AddAnimalState extends State<AddAnimal> {
                 fieldSetter: setterSex,
                 fieldCurrent: animal.sex,
                 defaultValues: Animal.defaultSexes,
+                handleReturn: handleReturn),
+            verticalSpace(context, 0.03),
+            optionsInputButton(
+                context: context,
+                header: 'Status (required)'.i18n,
+                hint: 'Select Status'.i18n,
+                icon: Icons.thumbs_up_down,
+                objectTable: Animal.table,
+                objectColumn: Animal.statusColumn,
+                fieldSetter: setterStatus,
+                fieldCurrent: animal.currentStatus,
+                defaultValues: Animal.defaultStatuses,
+                handleReturn: handleReturn),
+            verticalSpace(context, 0.03),
+            if (animal.currentStatus == 'Deceased')
+              dateInputButton(context: context,
+                  header: 'Death Date'.i18n,
+                  hint: 'Select Death Date'.i18n,
+                  icon: CustomIcons.skull,
+                  fieldSetter: setterDeathDate,
+                  fieldCurrent: animal.deathDate,
+                  handleReturn: handleReturn,
+                  bottomSpace: true),
+            if (animal.currentStatus == 'Pregnant')
+              dateInputButton(context: context,
+                  header: 'Due Date'.i18n,
+                  hint: 'Select Due Date'.i18n,
+                  icon: Icons.today,
+                  fieldSetter: setterDueDate,
+                  fieldCurrent: animal.dueDate,
+                  handleReturn: handleReturn,
+                  bottomSpace: true),
+            if (animal.currentStatus == 'Sold')
+              dateInputButton(context: context,
+                  header: 'Sold Date'.i18n,
+                  hint: 'Select Sold Date'.i18n,
+                  icon: CustomIcons.file_invoice_dollar,
+                  fieldSetter: setterSoldDate,
+                  fieldCurrent: animal.soldDate,
+                  handleReturn: handleReturn,
+                  bottomSpace: true),
+            dateInputButton(context: context,
+                header: 'Birth Date'.i18n,
+                hint: 'Select Birth Date'.i18n,
+                icon: CustomIcons.birthday_cake,
+                fieldSetter: setterBirthDate,
+                fieldCurrent: animal.birthDate,
                 handleReturn: handleReturn),
             verticalSpace(context, 0.03),
             optionsInputButton(
@@ -123,75 +198,73 @@ class _AddAnimalState extends State<AddAnimal> {
                 defaultValues: Animal.defaultAcquisitions,
                 handleReturn: handleReturn),
             verticalSpace(context, 0.03),
-            optionsInputButton(
-                context: context,
-                header: 'Status'.i18n,
-                hint: 'Select Status'.i18n,
-                icon: Icons.thumbs_up_down,
-                objectTable: Animal.table,
-                objectColumn: Animal.statusColumn,
-                fieldSetter: setterStatus,
-                fieldCurrent: animal.currentStatus,
-                defaultValues: Animal.defaultStatuses,
-                handleReturn: handleReturn),
-            verticalSpace(context, 0.03),
-            dateInputButton(context: context,
-                header: 'Birth Date'.i18n,
-                hint: 'Select Birth Date'.i18n,
-                icon: CustomIcons.birthday_cake,
-                fieldSetter: setterBirthDate,
-                fieldCurrent: animal.birthDate,
-                handleReturn: handleReturn),
-            verticalSpace(context, 0.03),
+            if (animal.acquisition == 'Purchased')
+              dateInputButton(context: context,
+                  header: 'Purchase Date'.i18n,
+                  hint: 'Select Purchase Date'.i18n,
+                  icon: CustomIcons.dollar_sign,
+                  fieldSetter: setterPurchaseDate,
+                  fieldCurrent: animal.purchaseDate,
+                  handleReturn: handleReturn,
+                  bottomSpace: true),
             inputForm(
                 context: context,
                 header: 'Dam'.i18n,
                 hint: 'Select Dam'.i18n,
-                icon: Icons.view_array,
+                icon: CustomIcons.venus,
                 invert: true),
             verticalSpace(context, 0.03),
+            inputForm(
+                context: context,
+                header: 'Sire'.i18n,
+                hint: 'Select Sire'.i18n,
+                icon: CustomIcons.mars,
+                invert: true),
+            verticalSpace(context, 0.03),
+            textArea(
+                context: context,
+                header: 'Notes'.i18n,
+                hint: 'Enter Additional Notes'.i18n,
+                icon: Icons.note,
+                invert: true),
             verticalSpace(context, 0.06),
             generalBlueButton(
                 context: context,
                 text: "Add".i18n,
                 function: () {
-                  // navigate(context: context, page: Dashboard(), direction: 'right', fromDrawer: false);
-                  _save();
+                  if (saveCheck()) {
+                    save(objectTable: Animal.table, object: animal);
+                    navigate(context: context,
+                        page: Livestock(),
+                        direction: 'right',
+                        fromDrawer: false,
+                        replace: true);
+                  }
                 }),
             verticalSpace(context, 0.06)
           ],
         ),
-      ))),
+      )),
     );
   }
 
-  handleReturn(
-      {@required ValueSetter fieldSetter, @required String returnValue}) {
+  /// Ensure id, type, and sex are not null
+  bool saveCheck() {
+    if (animal.identifier != null && animal.animalType != null && animal.sex != null) {
+      return true;
+    }
+    return false;
+  }
+
+  /// i.e. if status is not 'pregnant', then clear [animal.dueDate]
+  void clearDependentFields() {
+    if (animal.currentStatus != 'Pregnant') animal.dueDate = null;
+  }
+
+  handleReturn({@required ValueSetter fieldSetter, @required String returnValue}) {
     setState(() {
       if (returnValue != null) fieldSetter(returnValue);
     });
-  }
-
-  initializeWrapperFunctions() {
-    // Setter wrapper functions for options fields
-    setterAnimalType = (selection) => animal.setAnimalType = selection;
-    setterSex = (selection) => animal.setSex = selection;
-    setterAcquisition = (selection) => animal.setAcquisition = selection;
-    setterStatus = (selection) => animal.setStatus = selection;
-
-    // Setter wrapper function for image selection
-    setterThumbnail = (selection) => animal.setThumbnail = selection;
-
-    //Setter wrapper functions for date fields
-    setterBirthDate = (date) => animal.setBirthDate = date;
-  }
-
-  _save() async {
-    Animal animal = Animal();
-    DatabaseHelper helper = DatabaseHelper.instance;
-    int id =
-        await helper.insertObject(objectTable: Animal.table, object: animal);
-    print('inserted row: $id');
   }
 
   _read() async {

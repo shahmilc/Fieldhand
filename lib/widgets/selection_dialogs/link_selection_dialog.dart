@@ -8,9 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fieldhand/extentions/string_extensions.dart';
 import 'package:fieldhand/translations/options_dialog.i18n.dart';
-import 'package:fieldhand/translations/animal.i18n.dart';
 
-class TypeOptionsDialog extends StatefulWidget {
+class LinkSelectionDialog extends StatefulWidget {
   final String headerTitle;
   final String objectTable;
   final String objectColumns;
@@ -21,26 +20,24 @@ class TypeOptionsDialog extends StatefulWidget {
   final TextStyle searchStyle;
   final bool sortAlpha;
 
-  TypeOptionsDialog(
+  LinkSelectionDialog(
       {@required this.headerTitle,
-      this.hideSearch,
-      this.searchDecoration,
-      this.searchStyle,
-      this.sortAlpha = false,
-      @required this.objectTable,
-      @required this.objectColumns,
-      @required this.defaultOptions,
-      @required this.currentSelection});
+        this.hideSearch,
+        this.searchDecoration,
+        this.searchStyle,
+        this.sortAlpha = false,
+        @required this.objectTable,
+        @required this.objectColumns,
+        @required this.defaultOptions,
+        @required this.currentSelection});
 
   @override
-  State<StatefulWidget> createState() => _TypeOptionsDialogState();
+  State<StatefulWidget> createState() => _LinkSelectionDialogState();
 }
 
-class _TypeOptionsDialogState extends State<TypeOptionsDialog> {
-
+class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
   ScrollController _controller = ScrollController();
   Set _setElements = Set();
-  Map _translatedSetElements = Map();
   List _viewElements = List();
   bool _dataLoaded = false;
   bool _scrollLeft = false;
@@ -56,54 +53,55 @@ class _TypeOptionsDialogState extends State<TypeOptionsDialog> {
 
   @override
   Widget build(BuildContext context) => SimpleDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-                Radius.circular(displayWidth(context) * 0.07))),
-        titlePadding: const EdgeInsets.all(0),
-        contentPadding: EdgeInsets.only(bottom: 0),
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: <Widget>[
-            verticalSpace(context, 0.02),
-            if (!widget.hideSearch)
-              Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: displayWidth(context) * 0.05),
-                child: Column(
-                  children: <Widget>[
-                    cardHeader(context: context, text: widget.headerTitle),
-                    verticalSpace(context, 0.02),
-                    searchBar(),
-                    verticalSpace(context, 0.02),
-                  ],
-                ),
+    shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+            Radius.circular(displayWidth(context) * 0.07))),
+    titlePadding: const EdgeInsets.all(0),
+    contentPadding: EdgeInsets.only(bottom: 0),
+    title: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: <Widget>[
+        verticalSpace(context, 0.02),
+        if (!widget.hideSearch)
+          Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: displayWidth(context) * 0.05),
+            child: Column(
+              children: <Widget>[
+                cardHeader(context: context, text: widget.headerTitle),
+                verticalSpace(context, 0.02),
+                searchBar(),
+                verticalSpace(context, 0.02),
+              ],
+            ),
+          ),
+      ],
+    ),
+    children: [
+      Container(
+          padding: EdgeInsets.all(0),
+          height: displayHeight(context) * 0.4,
+          width: displayWidth(context) * 0.7,
+          child: _dataLoaded
+              ? Scrollbar(
+            child: Container(
+              child: ListView.builder(
+                controller: _controller,
+                itemBuilder: (BuildContext context, int index) {
+                  if (index == _viewElements.length)
+                    return _newTile();
+                  return _optionTile(index: index);
+                },
+                itemCount: _viewElements.length + 1,
               ),
-          ],
-        ),
-        children: [
-          Container(
-              padding: EdgeInsets.all(0),
-              height: displayHeight(context) * 0.4,
-              width: displayWidth(context) * 0.7,
-              child: _dataLoaded
-                  ? Scrollbar(
-                      child: Container(
-                        child: ListView.builder(
-                          controller: _controller,
-                          itemBuilder: (BuildContext context, int index) {
-                            if (index == _viewElements.length) return _newTile();
-                            return _optionTile(index: index);
-                          },
-                          itemCount: _viewElements.length + 1,
-                        ),
-                      ),
-                    )
-                  : loadingIndicator(context: context)),
-          _scrollIndicator(),
-          _buttonRow()
-        ],
-      );
+            ),
+          )
+              : loadingIndicator(context: context)),
+      _scrollIndicator(),
+      _buttonRow()
+    ],
+  );
 
   @override
   void initState() {
@@ -113,7 +111,7 @@ class _TypeOptionsDialogState extends State<TypeOptionsDialog> {
       _selected = widget.currentSelection;
     });
     _getSet();
-    _scrollListen();
+    scrollListen();
   }
 
   void initialScrollIndicator() {
@@ -122,7 +120,6 @@ class _TypeOptionsDialogState extends State<TypeOptionsDialog> {
     });
   }
 
-  /// Populates set with default types and unique types from database
   void _getSet() async {
     _setElements = await readColumn(objectTable: widget.objectTable, objectColumn: widget.objectColumns);
     _setElements.addAll(widget.defaultOptions);
@@ -130,23 +127,11 @@ class _TypeOptionsDialogState extends State<TypeOptionsDialog> {
     _viewElements.addAll(_setElements);
     if (widget.sortAlpha) _viewElements.sort();
     _isNew();
-    _translateSet();
     setState(() {
       _dataLoaded = true;
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) => initialScrollIndicator());
-  }
-
-  /// Translates all default types to locale language
-  void _translateSet() {
-    for (int i = 0; i < _setElements.length; i++) {
-      String element = _setElements.elementAt(i);
-      if (widget.defaultOptions.contains(element)) {
-        _translatedSetElements.putIfAbsent(element, () => element.i18n);
-      } else {
-        _translatedSetElements.putIfAbsent(element, () => element);
-      }
-    }
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => initialScrollIndicator());
   }
 
   void _isNew() {
@@ -155,16 +140,14 @@ class _TypeOptionsDialogState extends State<TypeOptionsDialog> {
     });
   }
 
-  /// Filter elements based on search query
   void _filterElements(String query) {
     query = query.toUpperCase();
     setState(() {
-      _viewElements = _setElements.where((element) => _translatedSetElements[element].toUpperCase().contains(query)).toList();
+      _viewElements = _setElements.where((element) => element.toUpperCase().contains(query)).toList();
     });
   }
 
-  /// Listens to scroll container, shows scroll down indicator if list can still be scrolled
-  void _scrollListen() {
+  void scrollListen() {
     _controller.addListener(() {
       if (_controller.position.maxScrollExtent == 0.0) {
         if (_scrollLeft == true) {
@@ -205,7 +188,7 @@ class _TypeOptionsDialogState extends State<TypeOptionsDialog> {
                 size: displayWidth(context) * 0.07,
               )),
           Spacer(),
-          Text(item.i18n,
+          Text(item,
               style: GoogleFonts.notoSans(
                   color: _selected == item ? Colors.white : Colors.black54,
                   fontWeight: FontWeight.normal,
@@ -222,7 +205,6 @@ class _TypeOptionsDialogState extends State<TypeOptionsDialog> {
         ],
       ),
       onPressed: () {
-        print(item);
         _selected = item;
         _isNew();
       },
@@ -254,7 +236,7 @@ class _TypeOptionsDialogState extends State<TypeOptionsDialog> {
               },
               onTap: () {
                 if ((_setElements.contains(_selected) || _selected == null) && _custom == null) {
-                  _selected = '';
+                  _selected = 'new';
                 } else if ((_setElements.contains(_selected) || _selected == null) && _custom != null) {
                   _selected = _custom;
                 }
@@ -275,7 +257,7 @@ class _TypeOptionsDialogState extends State<TypeOptionsDialog> {
                     fontSize: displayWidth(context) * 0.035),
                 focusedBorder: UnderlineInputBorder(
                   borderSide:
-                      BorderSide(color: _newOption ? Colors.white : primaryRed()),
+                  BorderSide(color: _newOption ? Colors.white : primaryRed()),
                 ),
               ),
             ),
@@ -304,9 +286,10 @@ class _TypeOptionsDialogState extends State<TypeOptionsDialog> {
       children: <Widget>[
         MaterialButton(
           child: Text(
-            "Cancel".i18n,
+            "Cancel",
             style: GoogleFonts.notoSans(
                 color: Colors.grey,
+                //fontWeight: FontWeight.bold,
                 fontSize: displayWidth(context) * 0.04),
           ),
           onPressed: () {
@@ -315,7 +298,7 @@ class _TypeOptionsDialogState extends State<TypeOptionsDialog> {
         ),
         MaterialButton(
           child: Text(
-            "Select".i18n,
+            "Select",
             style: GoogleFonts.notoSans(
                 color: (_selected == null || _selected.trim() == '')
                     ? primaryFaded()

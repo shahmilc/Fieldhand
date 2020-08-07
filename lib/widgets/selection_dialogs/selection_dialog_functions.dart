@@ -113,7 +113,8 @@ Widget dateInputButton(
     @required IconData icon,
     @required ValueSetter fieldSetter,
     @required String fieldCurrent,
-    @required Function handleReturn}) {
+    @required Function handleReturn,
+    bool bottomSpace = false}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
@@ -182,16 +183,17 @@ Widget dateInputButton(
                 firstDate: DateTime(DateTime.now().year - 50),
                 lastDate: DateTime.now(),
                 borderRadius: displayWidth(context) * 0.07,
-                description: 'Select Birth Date'.i18n,
+                description: hint,
                 theme: ThemeData(
                     primarySwatch:
                         MaterialColor(0xFFFF6159, primaryRedColorMap)),
-              ).then((date) => handleReturn(fieldSetter: fieldSetter, returnValue: date.toIso8601String())
+              ).then((date) => handleReturn(fieldSetter: fieldSetter, returnValue: date?.toIso8601String())
               );
             },
           ),
         )),
       ),
+      if (bottomSpace) verticalSpace(context, 0.03),
     ],
   );
 }

@@ -1,7 +1,9 @@
-import 'package:fieldhand/computation/general_functions.dart';
-import 'package:i18n_extension/default.i18n.dart';
+import 'dart:convert';
 
-// Livestock Table Columns
+import 'package:fieldhand/computation/general_functions.dart';
+import 'package:fieldhand/translations/animal.i18n.dart';
+
+/// Livestock Table Columns
 
 final String tableLivestock = 'livestock_table';
 final String columnId = 'name_id';
@@ -25,7 +27,7 @@ final String columnEditDate = 'edit_date';
 final String columnEditUser = 'edit_user';
 final String columnSerial = 'serial_number';
 
-// data model class
+/// data model class
 class Animal {
 
   static final String _tableName = tableLivestock;
@@ -58,6 +60,7 @@ class Animal {
     'assets/img/objectImages/animals/preset/pig.png',
     'assets/img/objectImages/animals/preset/cow.png',
     'assets/img/objectImages/animals/preset/horse.png',
+    'assets/img/objectImages/animals/preset/buffalo.png',
     'assets/img/objectImages/animals/preset/sheep.png',
     'assets/img/objectImages/animals/preset/goat.png',
     'assets/img/objectImages/animals/preset/ox.png',
@@ -70,10 +73,10 @@ class Animal {
     'assets/img/objectImages/animals/preset/rodent.png'
   ];
 
-  static final List<String> defaultTypes = ['Cow'.i18n, 'Horse'.i18n, 'Pig'.i18n, 'Chicken'.i18n, 'Sheep'.i18n, 'Ox'.i18n, 'Goat'.i18n, 'Buffalo'.i18n, 'Turkey'.i18n, 'Duck'.i18n, 'Rabbit'.i18n, 'Rodent'.i18n];
-  static final List<String> defaultSexes = ['Male'.i18n, 'Female'.i18n];
-  static final List<String> defaultAcquisitions =['Farm born'.i18n, 'Purchased'.i18n];
-  static final List<String> defaultStatuses = ['Healthy'.i18n, 'Ill'.i18n, 'Pregnant'.i18n, 'Deceased'.i18n, 'Sold'.i18n];
+  static final List<String> defaultTypes = ['Cow', 'Horse', 'Pig', 'Chicken', 'Sheep', 'Ox', 'Goat', 'Buffalo', 'Turkey', 'Duck', 'Rabbit', 'Rodent'];
+  static final List<String> defaultSexes = ['Male', 'Female'];
+  static final List<String> defaultAcquisitions =['Farm born', 'Purchased'];
+  static final List<String> defaultStatuses = ['Healthy', 'Ill', 'Pregnant', 'Deceased', 'Sold'];
 
   String identifier;
   String displayIdentifier;
@@ -90,7 +93,7 @@ class Animal {
   String dam;
   String sire;
   String breed;
-  List tasks;
+  String tasks;
   String notes;
   DateTime editDate;
   String editUser;
@@ -98,7 +101,7 @@ class Animal {
 
   Animal();
 
-  // convenience constructor to create a object
+  /// convenience constructor to create a object
   Animal.fromMap(Map<String, dynamic> map) {
     identifier = map[columnId];
     displayIdentifier = map[columnDisplayId];
@@ -122,7 +125,7 @@ class Animal {
     serial = map[columnSerial];
   }
 
-  // convenience method to create a Map from this object
+  /// convenience method to create a Map from this object
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{
       columnId: identifier,
@@ -152,32 +155,28 @@ class Animal {
     return map;
   }
 
-  // General getters
+  /// General getters
   static String get table => _tableName;
-
   static List<String> get columns => _tableColumns;
 
-  // Getters for options fields
+  /// Getters for options fields
   static String get typeColumn => columnType;
-
   static String get sexColumn => columnSex;
-
   static String get acquisitionColumn => columnAcquisition;
-
   static String get statusColumn => columnStatus;
 
-  // Setters for options fields
+  /// Setters for options fields
   set setAnimalType(String value) => this.animalType = value;
-
   set setSex(String value) => this.sex = value;
-
   set setAcquisition(String value) => this.acquisition = value;
-
   set setStatus(String value) => this.currentStatus = value;
-
   set setThumbnail(String value) => this.thumbLocation = value;
 
-  // Setters for date fields
+  /// Setters for date fields
   set setBirthDate(String value) => this.birthDate = value;
+  set setDeathDate(String value) => this.deathDate = value;
+  set setPurchaseDate(String value) => this.purchaseDate = value;
+  set setSoldDate (String value) => this.soldDate = value;
+  set setDueDate(String value) => this.dueDate = value;
 
 }

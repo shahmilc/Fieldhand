@@ -63,7 +63,7 @@ class _LoginState extends State<Login> {
                 verticalSpace(context, 0.02),
                 generalBlueButton(context: context, text: "Sign In".i18n, function: () {navigate(context: context, page: Dashboard(), direction: 'right', fromDrawer: false);}),
                 verticalSpace(context, 0.03),
-                orDivider(),
+                textDivider(context: context, text: "OR".i18n, color: Colors.white),
                 verticalSpace(context, 0.03),
                 Text("SIGN IN WITH".i18n,
                     style: GoogleFonts.notoSans(
@@ -82,33 +82,6 @@ class _LoginState extends State<Login> {
       ),
     );
   }
-
-
-  Widget orDivider() {
-    return Row(
-      children: <Widget>[
-        Expanded(
-            child: Divider(
-          indent: displayWidth(context) * 0.25,
-          endIndent: displayWidth(context) * 0.04,
-          color: Colors.white,
-        )),
-        Text("OR".i18n,
-            style: GoogleFonts.notoSans(
-                fontSize: displayWidth(context) * 0.025,
-                fontWeight: FontWeight.w200,
-                letterSpacing: displayWidth(context) * 0.005,
-                color: Colors.white)),
-        Expanded(
-            child: Divider(
-          indent: displayWidth(context) * 0.04,
-          endIndent: displayWidth(context) * 0.25,
-          color: Colors.white,
-        )),
-      ],
-    );
-  }
-
 
   Widget signUpRow() {
     return Row(

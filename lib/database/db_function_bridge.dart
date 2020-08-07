@@ -29,7 +29,14 @@ Future<Set> readColumn({@required String objectTable, @required String objectCol
   Set uniqueColumnItems = Set();
   List<Map> rawData = List<Map>();
   rawData = await helper.queryColumn(objectTable: objectTable, objectColumn: objectColumn);
-  // rawData format: [{'columnName': 'columnUniqueData1'}, {'columnName': 'columnUniqueData2'} ... ]
-  rawData.forEach((map) => map.forEach((key, value) => uniqueColumnItems.add(value)));
+  /// rawData format: [{'columnName': 'columnUniqueData1'}, {'columnName': 'columnUniqueData2'} ... ]
+  rawData.forEach((map) => map.forEach((key, value) {if (value != null) uniqueColumnItems.add(value);}));
   return uniqueColumnItems;
 }
+
+save({@required String objectTable, object}) async {
+  DatabaseHelper helper = DatabaseHelper.instance;
+  int id = await helper.insertObject(objectTable: Animal.table, object: object);
+  print('inserted row: $id');
+}
+

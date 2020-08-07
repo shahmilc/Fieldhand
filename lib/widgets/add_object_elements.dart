@@ -1,16 +1,8 @@
-import 'package:fieldhand/computation/general_functions.dart';
-import 'package:fieldhand/widgets/flutter_rounded_date_picker-1.0.4-local/rounded_picker.dart';
-import 'package:fieldhand/widgets/flutter_rounded_date_picker-1.0.4-local/src/material_rounded_date_picker_style.dart';
-import 'file:///C:/Users/shahm/FlutterProjects/fieldhand/lib/widgets/selection_dialogs/options_dialog.dart';
 import 'package:fieldhand/widgets/style_elements.dart';
 import 'package:flutter/material.dart';
 import 'package:fieldhand/screen_sizing.dart';
 import 'package:fieldhand/widgets/elements.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:i18n_extension/default.i18n.dart';
-import 'package:fieldhand/translations/options_dialog.i18n.dart';
-import 'package:i18n_extension/i18n_widget.dart';
-import 'package:intl/intl.dart';
 
 Widget addBody(
     {@required BuildContext context,
@@ -57,5 +49,60 @@ Widget addBody(
         )
       ],
     ),
+  );
+}
+
+Widget textArea({
+  @required BuildContext context,
+  @required String header,
+  @required String hint,
+  @required IconData icon,
+  bool invert = false,
+  Function onChanged}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: <Widget>[
+      Text(
+        header,
+        style: GoogleFonts.notoSans(
+            color: invert? Colors.white : primaryRed(),
+            fontSize: displayWidth(context) * 0.03,
+            fontWeight: FontWeight.bold),
+      ),
+      verticalSpace(context, 0.01),
+      Container(
+        alignment: Alignment.centerLeft,
+        padding: EdgeInsets.symmetric(vertical: displayHeight(context) * 0.002),
+        width: displayWidth(context) * 0.75,
+        decoration: roundedShadowDecoration(context: context, color: secondaryRed(), size: 0.015),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(
+              child: TextField(
+                keyboardType: TextInputType.multiline,
+                onChanged: onChanged,
+                minLines: 1,
+                maxLines: 7,
+                cursorColor: Colors.white,
+                style: GoogleFonts.notoSans(
+                    color: Colors.white, fontSize: displayWidth(context) * 0.04),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  prefixIcon: Icon(
+                    icon,
+                    color: Colors.white,
+                    size: displayWidth(context) * 0.065,
+                  ),
+                  hintText: hint,
+                  hintStyle: GoogleFonts.notoSans(
+                      color: Colors.white54, fontSize: displayWidth(context) * 0.035),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
   );
 }

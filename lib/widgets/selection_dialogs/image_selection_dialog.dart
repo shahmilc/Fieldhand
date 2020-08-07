@@ -37,6 +37,7 @@ class _ImageSelectionDialogState extends State<ImageSelectionDialog> {
   String _selected;
   List<String> _displayImgList = List<String>();
 
+  Image savedImage;
   PickedFile _pickedImageFile;
   File _croppedImageFile;
   dynamic _pickImageError;
@@ -185,6 +186,7 @@ class _ImageSelectionDialogState extends State<ImageSelectionDialog> {
   void _wipeImageCache() async {
     if (_croppedImageFile != null) await Directory(path.dirname(_croppedImageFile.path)).delete(recursive: true);
     if (_pickedImageFile != null) await Directory(path.dirname(_pickedImageFile.path))?.delete(recursive: true);
+    imageCache.clearLiveImages();
     imageCache.clear();
   }
 

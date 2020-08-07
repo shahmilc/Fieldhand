@@ -5,6 +5,7 @@ import 'package:fieldhand/widgets/style_elements.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fieldhand/screen_sizing.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:i18n_extension/default.i18n.dart';
 
@@ -84,13 +85,9 @@ Widget imageThumbnail(
 
 getImageFile({@required String item}) {
   if (item.split('/')[0] == 'assets') {
-    return Image.asset(
-      item,
-    );
+    return Image.asset(item,);
   } else {
-    return Image.file(
-      File(item),
-    );
+    return Image.memory(File(item).readAsBytesSync());
   }
 }
 
@@ -123,8 +120,7 @@ Widget topBar({@required BuildContext context}) {
   );
 }
 
-Widget inputForm({@required BuildContext context, @required String header, @required String hint, bool obscure, @required IconData icon, bool invert, Function onChanged}) {
-  if (invert == null) invert = false;
+Widget inputForm({@required BuildContext context, @required String header, @required String hint, bool obscure = false, @required IconData icon, bool invert = false, Function onChanged, int maxLength = 30}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
@@ -143,10 +139,12 @@ Widget inputForm({@required BuildContext context, @required String header, @requ
         decoration: roundedShadowDecoration(context: context, color: secondaryRed(), size: 0.015),
         child: TextField(
           onChanged: onChanged,
-          obscureText: obscure != null ? obscure : false,
+          obscureText: obscure,
           cursorColor: Colors.white,
-          style: GoogleFonts.notoSans(
-              color: Colors.white, fontSize: displayWidth(context) * 0.04),
+          style: GoogleFonts.notoSans(color: Colors.white, fontSize: displayWidth(context) * 0.04),
+          inputFormatters: [
+            LengthLimitingTextInputFormatter(maxLength),
+          ],
           decoration: InputDecoration(
             border: InputBorder.none,
             prefixIcon: Icon(
@@ -160,6 +158,31 @@ Widget inputForm({@required BuildContext context, @required String header, @requ
           ),
         ),
       ),
+    ],
+  );
+}
+
+Widget textDivider({@required BuildContext context, @required String text, @required Color color, double scaleFactor = 1.0}) {
+  return Row(
+    children: <Widget>[
+      Expanded(
+          child: Divider(
+            indent: displayWidth(context) * 0.25 / scaleFactor,
+            endIndent: displayWidth(context) * 0.04 / scaleFactor,
+            color: color,
+          )),
+      Text(text,
+          style: GoogleFonts.notoSans(
+              fontSize: displayWidth(context) * 0.025 * scaleFactor,
+              fontWeight: FontWeight.w200,
+              letterSpacing: displayWidth(context) * 0.005 * scaleFactor,
+              color: color)),
+      Expanded(
+          child: Divider(
+            indent: displayWidth(context) * 0.04 / scaleFactor,
+            endIndent: displayWidth(context) * 0.25 / scaleFactor,
+            color: color,
+          )),
     ],
   );
 }

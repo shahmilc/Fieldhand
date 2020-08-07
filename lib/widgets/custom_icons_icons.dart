@@ -45,6 +45,7 @@ class CustomIcons {
   static const IconData pets = IconData(0xe801, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData users = IconData(0xe802, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData local_hospital = IconData(0xe803, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData crop_field = IconData(0xe804, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData hospital_1 = IconData(0xe821, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData image = IconData(0xf03e, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData hospital = IconData(0xf0f8, fontFamily: _kFontFam, fontPackage: _kFontPkg);
@@ -56,9 +57,12 @@ class CustomIcons {
   static const IconData venus = IconData(0xf221, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData mars = IconData(0xf222, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData venus_mars = IconData(0xf228, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData user_plus = IconData(0xf234, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData user_times = IconData(0xf235, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData sign_out_alt = IconData(0xf2f5, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData images = IconData(0xf302, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData syringe_1 = IconData(0xf48e, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData warehouse = IconData(0xf494, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData skull = IconData(0xf54c, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData file_contract = IconData(0xf56c, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData file_invoice_dollar = IconData(0xf571, fontFamily: _kFontFam, fontPackage: _kFontPkg);

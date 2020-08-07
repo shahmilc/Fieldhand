@@ -3,23 +3,34 @@ import 'package:flutter/cupertino.dart';
 import 'package:fieldhand/database/globals.dart' as globals;
 import 'package:fieldhand/computation/transitions.dart';
 
-void navigate({@required BuildContext context, @required page, @required String direction, @required bool fromDrawer}) {
+void navigate({@required BuildContext context, @required page, @required String direction, @required bool fromDrawer, bool replace = false}) {
   if (globals.routeStack.isEmpty || page.routeName != globals.routeStack.last) {
     if (fromDrawer) Navigator.pop(context);
     if (direction == 'bottom') {
-      Navigator.push(context, SlideBottomRoute(page: page));
+      if (replace) {
+        Navigator.pushReplacement(context, SlideBottomRoute(page: page));
+      } else {
+        Navigator.push(context, SlideBottomRoute(page: page));
+      }
     } else if (direction == 'right') {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => page));
+      if (replace) {
+        Navigator.pushReplacement(context, CupertinoPageRoute(builder: (context) => page));
+      } else {
+        Navigator.push(context, CupertinoPageRoute(builder: (context) => page));
+      }
     }
-    setCurrentRoute(routeName: page.routeName);
+    _setCurrentRoute(routeName: page.routeName, replace: replace);
   } else {
     if (fromDrawer) Navigator.pop(context);
   }
   print("Stack: ${globals.routeStack}");
 }
 
-void setCurrentRoute({@required String routeName}) {
-  if (globals.routeStack.isEmpty || globals.routeStack.last != routeName) globals.routeStack.add(routeName);
+void _setCurrentRoute({@required String routeName, @required bool replace}) {
+  if (globals.routeStack.isEmpty || globals.routeStack.last != routeName) {
+    if (replace) globals.routeStack.removeLast();
+    globals.routeStack.add(routeName);
+  }
 }
 
 Future<bool> onBackPress({@required BuildContext context}) async {
