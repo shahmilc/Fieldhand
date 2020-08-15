@@ -1,5 +1,6 @@
 import 'package:fieldhand/branch/add_animal.dart';
 import 'package:fieldhand/computation/navigation.dart';
+import 'package:fieldhand/database/db_function_bridge.dart';
 import 'package:fieldhand/objects/animal.dart';
 import 'package:fieldhand/widgets/central_sliver_app_bar.dart';
 import 'package:fieldhand/widgets/drawer.dart';
@@ -26,8 +27,8 @@ class Livestock extends StatefulWidget {
 
 class _LivestockState extends State<Livestock> {
 
-  List<Animal> _animals = List<Animal>();
-  List<Animal> _displayAnimals = List<Animal>();
+  Set _animals = Set();
+  List _displayAnimals = List();
 
   @override
   void initState() {
@@ -61,8 +62,7 @@ class _LivestockState extends State<Livestock> {
   }
 
   getAnimals() async {
-    DatabaseHelper helper = DatabaseHelper.instance;
-    _animals = await helper.queryAll();
+    _animals = await queryAll(table: Animal.table);
     setState(() {
       _displayAnimals.addAll(_animals);
     });
@@ -317,7 +317,7 @@ class _LivestockState extends State<Livestock> {
   void _filterElements(String query) {
     query = query.toUpperCase();
     setState(() {
-      _displayAnimals = _animals.where((Animal searchAnimal) => searchAnimal.identifier.toUpperCase().contains(query)).toList();
+      _displayAnimals = _animals.where((searchAnimal) => searchAnimal.identifier.toUpperCase().contains(query)).toList();
     });
   }
 

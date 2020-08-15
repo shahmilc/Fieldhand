@@ -3,14 +3,13 @@ import 'package:fieldhand/screen_sizing.dart';
 import 'package:fieldhand/widgets/elements.dart';
 import 'package:fieldhand/widgets/style_elements.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fieldhand/extentions/string_extensions.dart';
 import 'package:fieldhand/translations/options_dialog.i18n.dart';
 import 'package:fieldhand/translations/animal.i18n.dart';
 
-class TypeOptionsDialog extends StatefulWidget {
+class OptionSelectionDialog extends StatefulWidget {
   final String headerTitle;
   final String objectTable;
   final String objectColumns;
@@ -21,7 +20,7 @@ class TypeOptionsDialog extends StatefulWidget {
   final TextStyle searchStyle;
   final bool sortAlpha;
 
-  TypeOptionsDialog(
+  OptionSelectionDialog(
       {@required this.headerTitle,
       this.hideSearch,
       this.searchDecoration,
@@ -33,10 +32,10 @@ class TypeOptionsDialog extends StatefulWidget {
       @required this.currentSelection});
 
   @override
-  State<StatefulWidget> createState() => _TypeOptionsDialogState();
+  State<StatefulWidget> createState() => _OptionSelectionDialogState();
 }
 
-class _TypeOptionsDialogState extends State<TypeOptionsDialog> {
+class _OptionSelectionDialogState extends State<OptionSelectionDialog> {
 
   ScrollController _controller = ScrollController();
   Set _setElements = Set();

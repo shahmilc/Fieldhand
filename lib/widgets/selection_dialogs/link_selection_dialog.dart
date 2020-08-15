@@ -1,34 +1,35 @@
 import 'package:fieldhand/database/db_function_bridge.dart';
+import 'package:fieldhand/objects/animal.dart';
 import 'package:fieldhand/screen_sizing.dart';
 import 'package:fieldhand/widgets/elements.dart';
+import 'package:fieldhand/widgets/marquee.dart';
+import 'package:fieldhand/widgets/no_scrollbar.dart';
 import 'package:fieldhand/widgets/style_elements.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fieldhand/extentions/string_extensions.dart';
-import 'package:fieldhand/translations/options_dialog.i18n.dart';
+import 'package:i18n_extension/default.i18n.dart';
 
 class LinkSelectionDialog extends StatefulWidget {
   final String headerTitle;
-  final String objectTable;
-  final String objectColumns;
+  final String objectType;
+  final bool parentSelection;
+  final bool sireSelection;
   final String currentSelection;
-  final List<String> defaultOptions;
   final bool hideSearch;
   final InputDecoration searchDecoration;
   final TextStyle searchStyle;
-  final bool sortAlpha;
 
   LinkSelectionDialog(
       {@required this.headerTitle,
         this.hideSearch,
         this.searchDecoration,
         this.searchStyle,
-        this.sortAlpha = false,
-        @required this.objectTable,
-        @required this.objectColumns,
-        @required this.defaultOptions,
+        @required this.objectType,
+        this.parentSelection = false,
+        this.sireSelection = false,
         @required this.currentSelection});
 
   @override
@@ -37,13 +38,15 @@ class LinkSelectionDialog extends StatefulWidget {
 
 class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
   ScrollController _controller = ScrollController();
+  Set _tableElements = Set();
   Set _setElements = Set();
   List _viewElements = List();
+  Map _typeOptions = Map();
   bool _dataLoaded = false;
   bool _scrollLeft = false;
+  String showType;
+  String searchQuery = "";
   String _selected;
-  String _custom;
-  bool _newOption = false;
 
   @override
   void dispose() {
@@ -72,10 +75,11 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
                 cardHeader(context: context, text: widget.headerTitle),
                 verticalSpace(context, 0.02),
                 searchBar(),
-                verticalSpace(context, 0.02),
+                verticalSpace(context, 0.01),
+                dropdownRow()
               ],
             ),
-          ),
+          )
       ],
     ),
     children: [
@@ -89,11 +93,9 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
               child: ListView.builder(
                 controller: _controller,
                 itemBuilder: (BuildContext context, int index) {
-                  if (index == _viewElements.length)
-                    return _newTile();
-                  return _optionTile(index: index);
+                  return _animalTile(index: index);
                 },
-                itemCount: _viewElements.length + 1,
+                itemCount: _viewElements.length,
               ),
             ),
           )
@@ -110,7 +112,7 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
       _dataLoaded = false;
       _selected = widget.currentSelection;
     });
-    _getSet();
+    _getObjects();
     scrollListen();
   }
 
@@ -120,30 +122,49 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
     });
   }
 
-  void _getSet() async {
-    _setElements = await readColumn(objectTable: widget.objectTable, objectColumn: widget.objectColumns);
-    _setElements.addAll(widget.defaultOptions);
-    if (widget.currentSelection != null) _setElements.add(widget.currentSelection);
-    _viewElements.addAll(_setElements);
-    if (widget.sortAlpha) _viewElements.sort();
-    _isNew();
+  void _getObjects() async {
+    if (widget.parentSelection) {
+      showType = widget.objectType;
+      String querySex = widget.sireSelection? 'Male' : 'Female';
+      _tableElements = await queryAll(table: Animal.table);
+      _setElements = _tableElements.where((element) => element.animalType == showType && element.sex == querySex).toSet();
+      _viewElements.addAll(_setElements);
+    }
+    _buildTypeList();
     setState(() {
       _dataLoaded = true;
     });
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => initialScrollIndicator());
+    WidgetsBinding.instance.addPostFrameCallback((_) => initialScrollIndicator());
   }
 
-  void _isNew() {
-    setState(() {
-      _newOption = (!_setElements.contains(_selected) && _selected != null);
-    });
+  void _changeMasterSet({@required String newValue}) {
+    showType = newValue;
+    String querySex = widget.sireSelection? 'Male' : 'Female';
+    _setElements = showType == 'All'?
+    _tableElements.where((element) => element.sex == querySex).toSet() :
+    _tableElements.where((element) => element.animalType == showType && element.sex == querySex).toSet();
+    _viewElements.clear();
+    _viewElements.addAll(_setElements);
+    _filterElements(searchQuery);
+  }
+
+  void _buildTypeList() async {
+    if (widget.parentSelection) {
+      Set rawType = await readColumn(objectTable: Animal.table, objectColumn: Animal.typeColumn);
+      rawType.add(widget.objectType);
+      _typeOptions['All'] = 'All'.i18n;
+      for (int i = 0; i < rawType.length; i++) {
+        String element = rawType.elementAt(i);
+        _typeOptions[element] = element.i18n;
+      }
+    }
   }
 
   void _filterElements(String query) {
     query = query.toUpperCase();
+    searchQuery = query;
     setState(() {
-      _viewElements = _setElements.where((element) => element.toUpperCase().contains(query)).toList();
+      _viewElements = _setElements.where((element) => element.identifier.toUpperCase().contains(query)).toList();
     });
   }
 
@@ -173,110 +194,161 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
     });
   }
 
-  Widget _optionTile({@required int index}) {
-    String item = _viewElements.elementAt(index);
-    return MaterialButton(
-      height: displayHeight(context) * 0.07,
-      color: _selected == item ? secondaryRed() : Colors.white,
-      elevation: 0,
-      child: Row(
-        children: <Widget>[
-          Opacity(
-              opacity: 0.0,
-              child: Icon(
-                Icons.arrow_right,
-                size: displayWidth(context) * 0.07,
-              )),
-          Spacer(),
-          Text(item,
-              style: GoogleFonts.notoSans(
-                  color: _selected == item ? Colors.white : Colors.black54,
-                  fontWeight: FontWeight.normal,
-                  fontSize: displayWidth(context) * 0.05)),
-          Spacer(),
-          AnimatedOpacity(
-              opacity: _selected == item ? 1.0 : 0.0,
-              duration: Duration(milliseconds: 200),
-              child: Icon(
-                Icons.check,
-                color: Colors.white,
-                size: displayWidth(context) * 0.07,
-              ))
-        ],
+  _animalTile({@required int index}) {
+    var item = _viewElements.elementAt(index);
+    bool isAnimal = item.runtimeType == Animal;
+    bool isCurrent = _selected == item.serial;
+    return Center(
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: displayHeight(context) * 0.01, horizontal: displayWidth(context) * 0.02),
+        height: displayHeight(context) * 0.1,
+        width: displayWidth(context) * 0.9,
+        child: OutlineButton(
+          highlightedBorderColor: primaryRed(),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(displayWidth(context) * 0.025),
+          ),
+          child: Row(
+            children: <Widget>[
+              imageThumbnail(context: context, size: 0.15, color: secondaryRed(), imagePath: item.thumbLocation),
+              horizontalSpace(context, 0.05),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    SizedBox(
+                      width: displayWidth(context) * 0.4,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          identifierText(identifier: item.displayIdentifier),
+                          isAnimal? animalTypeText(sex: item.sex, typeText: item.animalType) : typeText(typeText: item.objectType)
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      child: AnimatedOpacity(
+                          opacity: isCurrent? 1.0 : 0.0,
+                          duration: Duration(milliseconds: 150),
+                          child: Icon(
+                            Icons.check,
+                            color: primaryRed(),
+                            size: displayWidth(context) * 0.07,
+                          )),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+          onPressed: () {
+            setState(() {
+              _selected = item.serial;
+            });
+            },
+        ),
       ),
-      onPressed: () {
-        _selected = item;
-        _isNew();
-      },
     );
   }
 
-  Widget _newTile() {
-    return MaterialButton(
-      height: displayHeight(context) * 0.07,
-      color: _newOption ? secondaryRed() : Colors.white,
-      elevation: 0,
-      child: Row(
-        children: <Widget>[
-          Opacity(
-              opacity: 0.0,
-              child: Icon(
-                Icons.arrow_right,
-                size: displayWidth(context) * 0.07,
-              )),
-          Spacer(),
-          Container(
-            height: displayHeight(context) * 0.067,
-            width: displayWidth(context) * 0.55,
-            child: TextField(
-              onChanged: (value) {
-                _selected = value;
-                _custom = value;
-                _isNew();
-              },
-              onTap: () {
-                if ((_setElements.contains(_selected) || _selected == null) && _custom == null) {
-                  _selected = 'new';
-                } else if ((_setElements.contains(_selected) || _selected == null) && _custom != null) {
-                  _selected = _custom;
-                }
-                _isNew();
-              },
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(20),
-              ],
-              textAlign: TextAlign.center,
-              cursorColor: Colors.white,
-              style: GoogleFonts.notoSans(
-                  color: _newOption ? Colors.white : Colors.black54,
-                  fontSize: displayWidth(context) * 0.05),
-              decoration: InputDecoration(
-                hintText: 'Enter New',
-                hintStyle: GoogleFonts.notoSans(
-                    color: _newOption ? Colors.white : Colors.black54,
-                    fontSize: displayWidth(context) * 0.035),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide:
-                  BorderSide(color: _newOption ? Colors.white : primaryRed()),
-                ),
-              ),
-            ),
-          ),
-          Spacer(),
-          AnimatedOpacity(
-              opacity: _newOption ? 1.0 : 0.0,
-              duration: Duration(milliseconds: 200),
-              child: Icon(
-                Icons.check,
-                color: Colors.white,
-                size: displayWidth(context) * 0.07,
-              ))
-        ],
+  Widget identifierText({@required String identifier}) {
+    return NoScrollbar(
+      child: Marquee(
+        direction: Axis.horizontal,
+        forwardTimeFactor: 1.5,
+        pauseDuration: const Duration(milliseconds: 800),
+        child: Text(
+          identifier,
+          style: GoogleFonts.notoSans(
+              color: primaryRed(),
+              fontSize: displayWidth(context) * 0.045,
+              fontWeight: FontWeight.bold),
+          maxLines: 1,
+        ),
       ),
-      onPressed: () {
-        _selected = 'new';
-        _isNew();
-      },
+    );
+  }
+
+  Widget animalTypeText({@required String sex, @required String typeText}) {
+    return Text(
+      '$sex $typeText',
+      style: GoogleFonts.notoSans(color: Colors.black45, fontSize: displayWidth(context) * 0.035),
+      maxLines: 1,
+    );
+  }
+  
+  Widget typeText({@required String typeText}) {
+    return Text(
+      typeText,
+      style: GoogleFonts.notoSans(color: Colors.black45, fontSize: displayWidth(context) * 0.035),
+      maxLines: 1,
+    );
+  }
+
+  /**Widget checkboxRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Checkbox(value: _childTypeOnly,
+          activeColor: Color(0xFFFF6159),
+          checkColor: Colors.white,
+          onChanged: (bool newValue) {
+              _childTypeOnly = newValue;
+              _changeMasterSet();
+          },),
+        Text(
+          "Type ".i18n,
+          style: GoogleFonts.notoSans(
+            color: Colors.black38,
+            fontSize: displayWidth(context) * 0.03,
+          ),
+        ),
+        Text(
+          widget.objectType.i18n,
+          style: GoogleFonts.notoSans(
+              color: primaryRed(),
+              fontSize: displayWidth(context) * 0.03,
+              fontWeight: FontWeight.bold),
+        ),
+        Text(
+          " only".i18n,
+          style: GoogleFonts.notoSans(
+            color: Colors.black38,
+            fontSize: displayWidth(context) * 0.03,
+          ),
+        )
+      ],
+    );
+  }**/
+
+  Widget dropdownRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Text(
+          "Show type ".i18n,
+          style: GoogleFonts.notoSans(
+            color: Colors.black38,
+            fontSize: displayWidth(context) * 0.03,
+          ),
+        ),
+        ButtonTheme(
+          alignedDropdown: true,
+          child: DropdownButton<String>(
+            value: showType,
+            items: _typeOptions.keys.map((element) {
+              return DropdownMenuItem<String>(
+                child: Text(_typeOptions[element], style: GoogleFonts.notoSans(
+                  color: showType == element? primaryRed() : Colors.black38,
+                  fontSize: displayWidth(context) * 0.03,
+                  fontWeight: showType == element? FontWeight.bold : FontWeight.normal),),
+              value: element,
+            );}).toList(),
+            onChanged: (value) => _changeMasterSet(newValue: value),
+          ),
+        )
+      ],
     );
   }
 

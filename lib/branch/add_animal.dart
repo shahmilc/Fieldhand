@@ -5,6 +5,7 @@ import 'package:fieldhand/database/db_function_bridge.dart';
 import 'package:fieldhand/widgets/add_object_elements.dart';
 import 'package:fieldhand/widgets/custom_icons_icons.dart';
 import 'package:fieldhand/widgets/elements.dart';
+import 'package:fieldhand/widgets/selection_dialogs/link_selection_dialog.dart';
 import 'package:fieldhand/widgets/selection_dialogs/selection_dialog_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -35,12 +36,16 @@ class _AddAnimalState extends State<AddAnimal> {
   // Setter wrapper function for image selection
   ValueSetter setterThumbnail;
 
-  //Setter wrapper functions for date fields
+  // Setter wrapper functions for date fields
   ValueSetter setterBirthDate;
   ValueSetter setterDeathDate;
   ValueSetter setterPurchaseDate;
   ValueSetter setterSoldDate;
   ValueSetter setterDueDate;
+
+  // Setter wrapper functions for links
+  ValueSetter setterDam;
+  ValueSetter setterSire;
 
   initializeWrapperFunctions() {
 
@@ -61,12 +66,16 @@ class _AddAnimalState extends State<AddAnimal> {
     /// Setter wrapper function for image selection
     setterThumbnail = (imagePath) => animal.setThumbnail = imagePath;
 
-    ///Setter wrapper functions for date fields
+    /// Setter wrapper functions for date fields
     setterBirthDate = (date) => animal.setBirthDate = date;
     setterDeathDate = (date) => animal.setDeathDate = date;
     setterPurchaseDate = (date) => animal.setPurchaseDate = date;
     setterSoldDate = (date) => animal.soldDate = date;
     setterDueDate = (date) => animal.dueDate = date;
+
+    /// Setter wrapper functions for links
+    setterDam = (selection) => animal.setDam = selection;
+    setterSire = (selection) => animal.setSire = selection;
   }
 
   @override
@@ -114,7 +123,7 @@ class _AddAnimalState extends State<AddAnimal> {
                 },
                 invert: true),
             verticalSpace(context, 0.03),
-            optionsInputButton(
+            optionInputButton(
                 context: context,
                 header: 'Type (required)'.i18n,
                 hint: 'Select Type'.i18n,
@@ -127,7 +136,7 @@ class _AddAnimalState extends State<AddAnimal> {
                 sortAlpha: true,
                 handleReturn: handleReturn),
             verticalSpace(context, 0.03),
-            optionsInputButton(
+            optionInputButton(
                 context: context,
                 header: 'Sex (required)'.i18n,
                 hint: 'Select Sex'.i18n,
@@ -139,7 +148,7 @@ class _AddAnimalState extends State<AddAnimal> {
                 defaultValues: Animal.defaultSexes,
                 handleReturn: handleReturn),
             verticalSpace(context, 0.03),
-            optionsInputButton(
+            optionInputButton(
                 context: context,
                 header: 'Status (required)'.i18n,
                 hint: 'Select Status'.i18n,
@@ -186,7 +195,7 @@ class _AddAnimalState extends State<AddAnimal> {
                 fieldCurrent: animal.birthDate,
                 handleReturn: handleReturn),
             verticalSpace(context, 0.03),
-            optionsInputButton(
+            optionInputButton(
                 context: context,
                 header: 'Acquisition'.i18n,
                 hint: 'Select Method'.i18n,
@@ -207,19 +216,29 @@ class _AddAnimalState extends State<AddAnimal> {
                   fieldCurrent: animal.purchaseDate,
                   handleReturn: handleReturn,
                   bottomSpace: true),
-            inputForm(
+            linkInputButton(
                 context: context,
                 header: 'Dam'.i18n,
-                hint: 'Select Dam'.i18n,
+                hint: 'Select Dam',
                 icon: CustomIcons.venus,
-                invert: true),
+                objectType: animal.animalType,
+                parentSelection: true,
+                sireSelection: false,
+                fieldSetter: setterDam,
+                fieldCurrent: animal.dam,
+                handleReturn: handleReturn),
             verticalSpace(context, 0.03),
-            inputForm(
+            linkInputButton(
                 context: context,
                 header: 'Sire'.i18n,
-                hint: 'Select Sire'.i18n,
+                hint: 'Select Sire',
                 icon: CustomIcons.mars,
-                invert: true),
+                objectType: animal.animalType,
+                parentSelection: true,
+                sireSelection: true,
+                fieldSetter: setterSire,
+                fieldCurrent: animal.sire,
+                handleReturn: handleReturn),
             verticalSpace(context, 0.03),
             textArea(
                 context: context,

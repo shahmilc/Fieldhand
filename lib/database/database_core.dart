@@ -102,12 +102,11 @@ class DatabaseHelper {
     }
   }
 
-  Future<List> queryAll() async {
+  Future<List> queryAll({@required String table}) async {
     Database db = await database;
-    List<Animal> animals = List<Animal>();
-    List<Map> list = await db.rawQuery('SELECT * FROM $tableLivestock');
-    list.forEach((element) {animals.add(Animal.fromMap(element)); });
-    return animals;
+    List rawData = List();
+    rawData = await db.rawQuery('SELECT * FROM $table');
+    return rawData;
   }
 
 // TODO: queryAllWords()

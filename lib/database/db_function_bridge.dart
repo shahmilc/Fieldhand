@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fieldhand/objects/animal.dart';
 
-Future<Object> readObject({@required String objectId, @required String objectType}) async {
+Future<Object> readObject({@required String objectId, @required String objectType, @required Function function}) async {
   DatabaseHelper helper = DatabaseHelper.instance;
   String objectTable;
   List<String> objectColumns = List<String>();
@@ -24,6 +24,7 @@ Future<Object> readObject({@required String objectId, @required String objectTyp
   }
 }
 
+/// Returns all unique data in a column
 Future<Set> readColumn({@required String objectTable, @required String objectColumn}) async {
   DatabaseHelper helper = DatabaseHelper.instance;
   Set uniqueColumnItems = Set();
@@ -38,5 +39,20 @@ save({@required String objectTable, object}) async {
   DatabaseHelper helper = DatabaseHelper.instance;
   int id = await helper.insertObject(objectTable: Animal.table, object: object);
   print('inserted row: $id');
+}
+
+/// Returns all objects in a table
+Future<Set> queryAll({@required String table}) async {
+  DatabaseHelper helper = DatabaseHelper.instance;
+  List rawData = List();
+  Set objectSet = Set();
+  rawData = await helper.queryAll(table: table);
+
+  if (table == Animal.table) {
+    rawData.forEach((map) => objectSet.add(Animal.fromMap(map)));
+  }
+
+  return objectSet;
+
 }
 

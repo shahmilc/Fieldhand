@@ -2,7 +2,8 @@ import 'package:fieldhand/computation/general_functions.dart';
 import 'package:fieldhand/widgets/flutter_rounded_date_picker-1.0.4-local/rounded_picker.dart';
 import 'package:fieldhand/widgets/flutter_rounded_date_picker-1.0.4-local/src/material_rounded_date_picker_style.dart';
 import 'package:fieldhand/widgets/selection_dialogs/image_selection_dialog.dart';
-import 'package:fieldhand/widgets/selection_dialogs/options_dialog.dart';
+import 'package:fieldhand/widgets/selection_dialogs/link_selection_dialog.dart';
+import 'package:fieldhand/widgets/selection_dialogs/option_selection_dialog.dart';
 import 'package:fieldhand/widgets/style_elements.dart';
 import 'package:flutter/material.dart';
 import 'package:fieldhand/screen_sizing.dart';
@@ -14,7 +15,7 @@ import 'package:i18n_extension/i18n_widget.dart';
 import 'package:intl/intl.dart';
 
 // Button for options selection form
-Widget optionsInputButton(
+Widget optionInputButton(
     {@required BuildContext context,
     @required String header,
     @required String hint,
@@ -73,23 +74,13 @@ Widget optionsInputButton(
               showDialog(
                   barrierDismissible: false,
                   context: context,
-                  builder: (_) => TypeOptionsDialog(
+                  builder: (_) => OptionSelectionDialog(
                         hideSearch: false,
                         searchStyle: GoogleFonts.notoSans(
                             color: Colors.white,
                             fontSize: displayWidth(context) * 0.04),
                         headerTitle: header,
-                        searchDecoration: InputDecoration(
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: Colors.white,
-                          ),
-                          hintText: 'Search'.i18n,
-                          border: InputBorder.none,
-                          hintStyle: GoogleFonts.notoSans(
-                              color: Colors.white54,
-                              fontSize: displayWidth(context) * 0.035),
-                        ),
+                        searchDecoration: miniSearchDecoration(context: context, text: 'Search'.i18n),
                         objectTable: objectTable,
                         objectColumns: objectColumn,
                         currentSelection: fieldCurrent,
@@ -100,6 +91,85 @@ Widget optionsInputButton(
             },
           ),
         )),
+      ),
+    ],
+  );
+}
+
+Widget linkInputButton(
+    {@required BuildContext context,
+      @required String header,
+      @required String hint,
+      @required IconData icon,
+      @required String objectType,
+      bool parentSelection = false,
+      bool sireSelection = false,
+      @required ValueSetter fieldSetter,
+      @required String fieldCurrent,
+      @required Function handleReturn}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: <Widget>[
+      Text(
+        header,
+        style: GoogleFonts.notoSans(
+            color: Colors.white,
+            fontSize: displayWidth(context) * 0.03,
+            fontWeight: FontWeight.bold),
+      ),
+      verticalSpace(context, 0.01),
+      Container(
+        alignment: Alignment.centerLeft,
+        height: displayHeight(context) * 0.067,
+        width: displayWidth(context) * 0.75,
+        decoration: roundedShadowDecoration(
+            context: context, color: secondaryRed(), size: 0.015),
+        padding: EdgeInsets.symmetric(horizontal: displayWidth(context) * 0.02),
+        child: Center(
+            child: Container(
+              child: FlatButton(
+                padding:
+                EdgeInsets.symmetric(horizontal: displayWidth(context) * 0.004),
+                child: Row(
+                  children: <Widget>[
+                    Icon(icon,
+                        color: Colors.white, size: displayWidth(context) * 0.065),
+                    horizontalSpace(context, 0.03),
+                    fieldCurrent == null
+                        ? Text(
+                      hint,
+                      style: GoogleFonts.notoSans(
+                          color: Colors.white54,
+                          fontSize: displayWidth(context) * 0.035),
+                    )
+                        : Text(
+                      fieldCurrent,
+                      style: GoogleFonts.notoSans(
+                          color: Colors.white,
+                          fontSize: displayWidth(context) * 0.04),
+                    )
+                  ],
+                ),
+                onPressed: () {
+                  showDialog(
+                      barrierDismissible: false,
+                      context: context,
+                      builder: (_) => LinkSelectionDialog(
+                        hideSearch: false,
+                        searchStyle: GoogleFonts.notoSans(
+                            color: Colors.white,
+                            fontSize: displayWidth(context) * 0.04),
+                        headerTitle: header,
+                        searchDecoration: miniSearchDecoration(context: context, text: 'Search'.i18n),
+                        objectType: objectType,
+                        parentSelection: parentSelection,
+                        sireSelection: sireSelection,
+                        currentSelection: fieldCurrent,
+                      )).then((returnValue) => handleReturn(
+                      fieldSetter: fieldSetter, returnValue: returnValue));
+                },
+              ),
+            )),
       ),
     ],
   );

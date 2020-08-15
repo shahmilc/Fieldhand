@@ -179,4 +179,8 @@ class Animal {
   set setSoldDate (String value) => this.soldDate = value;
   set setDueDate(String value) => this.dueDate = value;
 
+  /// Setters for links
+  set setDam(String value) => this.dam = value;
+  set setSire(String value) => this.sire = value;
+
 }
