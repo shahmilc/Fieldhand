@@ -74,12 +74,38 @@ class DatabaseHelper {
     }
   }
 
-  Future<Map> queryObject({@required String objectTable, @required List<String> objectColumns, @required String objectId}) async {
+  Future<int> updateObject({@required String objectTable, @required object}) async {
+    Database db = await database;
+    try {
+      int updateCount = await db.update(
+          objectTable,
+          object.toMap(),
+          where: '$columnSerial = ?',
+          whereArgs: [object.serial]);
+      return updateCount;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  Future<Map> queryObjectId({@required String objectTable, @required List<String> objectColumns, @required String objectId}) async {
     Database db = await database;
     List<Map> maps = await db.query(objectTable,
         columns: objectColumns,
         where: '$columnId = ?',
         whereArgs: [objectId]);
+    if (maps.length > 0) {
+      return maps.first; // Return raw data, call Animal.fromMap(rawData) to get object
+    }
+    return null;
+  }
+
+  Future<Map> queryObjectSerial({@required String objectTable, @required List<String> objectColumns, @required String objectSerial}) async {
+    Database db = await database;
+    List<Map> maps = await db.query(objectTable,
+        columns: objectColumns,
+        where: '$columnSerial = ?',
+        whereArgs: [objectSerial]);
     if (maps.length > 0) {
       return maps.first; // Return raw data, call Animal.fromMap(rawData) to get object
     }

@@ -10,9 +10,7 @@ import 'package:fieldhand/screen_sizing.dart';
 import 'package:fieldhand/widgets/elements.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:i18n_extension/default.i18n.dart';
-import 'package:fieldhand/translations/options_dialog.i18n.dart';
 import 'package:i18n_extension/i18n_widget.dart';
-import 'package:intl/intl.dart';
 
 // Button for options selection form
 Widget optionInputButton(
@@ -25,8 +23,7 @@ Widget optionInputButton(
     @required ValueSetter fieldSetter,
     @required String fieldCurrent,
     @required List defaultValues,
-    bool sortAlpha = false,
-    @required Function handleReturn}) {
+    bool sortAlpha = false}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
@@ -62,12 +59,16 @@ Widget optionInputButton(
                             color: Colors.white54,
                             fontSize: displayWidth(context) * 0.035),
                       )
-                    : Text(
-                        fieldCurrent,
-                        style: GoogleFonts.notoSans(
-                            color: Colors.white,
-                            fontSize: displayWidth(context) * 0.04),
-                      )
+                    : Flexible(
+                      child: Text(
+                          fieldCurrent,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.notoSans(
+                              color: Colors.white,
+                              fontSize: displayWidth(context) * 0.04),
+                        ),
+                    )
               ],
             ),
             onPressed: () {
@@ -76,9 +77,6 @@ Widget optionInputButton(
                   context: context,
                   builder: (_) => OptionSelectionDialog(
                         hideSearch: false,
-                        searchStyle: GoogleFonts.notoSans(
-                            color: Colors.white,
-                            fontSize: displayWidth(context) * 0.04),
                         headerTitle: header,
                         searchDecoration: miniSearchDecoration(context: context, text: 'Search'.i18n),
                         objectTable: objectTable,
@@ -86,8 +84,7 @@ Widget optionInputButton(
                         currentSelection: fieldCurrent,
                         sortAlpha: sortAlpha,
                         defaultOptions: defaultValues,
-                      )).then((returnValue) => handleReturn(
-                  fieldSetter: fieldSetter, returnValue: returnValue));
+                      )).then((returnValue) => returnValue != null? fieldSetter(returnValue) : null);
             },
           ),
         )),
@@ -106,7 +103,9 @@ Widget linkInputButton(
       bool sireSelection = false,
       @required ValueSetter fieldSetter,
       @required String fieldCurrent,
-      @required Function handleReturn}) {
+      @required String currentId,
+      bool disabled = true,
+      String disabledText = ""}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
@@ -118,58 +117,62 @@ Widget linkInputButton(
             fontWeight: FontWeight.bold),
       ),
       verticalSpace(context, 0.01),
-      Container(
-        alignment: Alignment.centerLeft,
-        height: displayHeight(context) * 0.067,
-        width: displayWidth(context) * 0.75,
-        decoration: roundedShadowDecoration(
-            context: context, color: secondaryRed(), size: 0.015),
-        padding: EdgeInsets.symmetric(horizontal: displayWidth(context) * 0.02),
-        child: Center(
-            child: Container(
-              child: FlatButton(
-                padding:
-                EdgeInsets.symmetric(horizontal: displayWidth(context) * 0.004),
-                child: Row(
-                  children: <Widget>[
-                    Icon(icon,
-                        color: Colors.white, size: displayWidth(context) * 0.065),
-                    horizontalSpace(context, 0.03),
-                    fieldCurrent == null
-                        ? Text(
-                      hint,
-                      style: GoogleFonts.notoSans(
-                          color: Colors.white54,
-                          fontSize: displayWidth(context) * 0.035),
-                    )
-                        : Text(
-                      fieldCurrent,
-                      style: GoogleFonts.notoSans(
-                          color: Colors.white,
-                          fontSize: displayWidth(context) * 0.04),
-                    )
-                  ],
+      Opacity(
+        opacity: disabled? 0.5 : 1.0,
+        child: Container(
+          alignment: Alignment.centerLeft,
+          height: displayHeight(context) * 0.067,
+          width: displayWidth(context) * 0.75,
+          decoration: roundedShadowDecoration(
+              context: context, color: secondaryRed(), size: 0.015),
+          padding: EdgeInsets.symmetric(horizontal: displayWidth(context) * 0.02),
+          child: Center(
+              child: Container(
+                child: FlatButton(
+                  padding:
+                  EdgeInsets.symmetric(horizontal: displayWidth(context) * 0.004),
+                  child: Row(
+                    children: <Widget>[
+                      Icon(icon,
+                          color: Colors.white, size: displayWidth(context) * 0.065),
+                      horizontalSpace(context, 0.03),
+                      fieldCurrent == null || disabled
+                          ? Text(
+                        disabled? disabledText : hint,
+                        style: GoogleFonts.notoSans(
+                            color: Colors.white54,
+                            fontSize: displayWidth(context) * 0.035),
+                      )
+                          : currentId == null? Center(child: SizedBox(width: displayWidth(context) * 0.05, height: displayWidth(context) * 0.05,child: loadingIndicator(context: context, color: Colors.white))) :
+                      Flexible(
+                        child: Text(
+                          currentId,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: GoogleFonts.notoSans(
+                              color: Colors.white,
+                              fontSize: displayWidth(context) * 0.04),
+                        ),
+                      )
+                    ],
+                  ),
+                  onPressed: disabled? null : () {
+                    showDialog(
+                        barrierDismissible: false,
+                        context: context,
+                        builder: (_) => LinkSelectionDialog(
+                          hideSearch: false,
+                          headerTitle: header,
+                          searchDecoration: miniSearchDecoration(context: context, text: 'Search'.i18n),
+                          objectType: objectType,
+                          parentSelection: parentSelection,
+                          sireSelection: sireSelection,
+                          currentSelection: fieldCurrent,
+                        )).then((returnValue) => returnValue != null? fieldSetter(returnValue) : null);
+                  },
                 ),
-                onPressed: () {
-                  showDialog(
-                      barrierDismissible: false,
-                      context: context,
-                      builder: (_) => LinkSelectionDialog(
-                        hideSearch: false,
-                        searchStyle: GoogleFonts.notoSans(
-                            color: Colors.white,
-                            fontSize: displayWidth(context) * 0.04),
-                        headerTitle: header,
-                        searchDecoration: miniSearchDecoration(context: context, text: 'Search'.i18n),
-                        objectType: objectType,
-                        parentSelection: parentSelection,
-                        sireSelection: sireSelection,
-                        currentSelection: fieldCurrent,
-                      )).then((returnValue) => handleReturn(
-                      fieldSetter: fieldSetter, returnValue: returnValue));
-                },
-              ),
-            )),
+              )),
+        ),
       ),
     ],
   );
@@ -183,7 +186,6 @@ Widget dateInputButton(
     @required IconData icon,
     @required ValueSetter fieldSetter,
     @required String fieldCurrent,
-    @required Function handleReturn,
     bool bottomSpace = false}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,12 +222,16 @@ Widget dateInputButton(
                             color: Colors.white54,
                             fontSize: displayWidth(context) * 0.035),
                       )
-                    : Text(
-                        convertDate(fieldCurrent),
-                        style: GoogleFonts.notoSans(
-                            color: Colors.white,
-                            fontSize: displayWidth(context) * 0.04),
-                      )
+                    : Flexible(
+                      child: Text(
+                          convertDate(fieldCurrent),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.notoSans(
+                              color: Colors.white,
+                              fontSize: displayWidth(context) * 0.04),
+                        ),
+                    )
               ],
             ),
             onPressed: () {
@@ -257,8 +263,7 @@ Widget dateInputButton(
                 theme: ThemeData(
                     primarySwatch:
                         MaterialColor(0xFFFF6159, primaryRedColorMap)),
-              ).then((date) => handleReturn(fieldSetter: fieldSetter, returnValue: date?.toIso8601String())
-              );
+              ).then((date) => date != null? fieldSetter(date?.toIso8601String()) : null);
             },
           ),
         )),
@@ -274,8 +279,7 @@ Future<void> showImageSelectionDialog({
   @required String currentImage,
   @required List defaultImages,
   @required String objectSerial,
-  @required ValueSetter fieldSetter,
-  @required Function handleReturn}) async {
+  @required ValueSetter fieldSetter}) async {
   await showDialog(
       barrierDismissible: false,
       context: context,
@@ -284,5 +288,5 @@ Future<void> showImageSelectionDialog({
         imgList: defaultImages,
         currentImage: currentImage,
         objectSerial: objectSerial,
-      )).then((selection) => handleReturn(fieldSetter: fieldSetter, returnValue: selection));
+      )).then((selection) => selection != null? fieldSetter(selection) : null);
 }

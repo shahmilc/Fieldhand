@@ -4,12 +4,9 @@ import 'package:fieldhand/screen_sizing.dart';
 import 'package:fieldhand/widgets/elements.dart';
 import 'package:fieldhand/widgets/marquee.dart';
 import 'package:fieldhand/widgets/no_scrollbar.dart';
-import 'package:fieldhand/widgets/style_elements.dart';
+import 'package:fieldhand/widgets/selection_dialogs/selection_dialog_elements.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:fieldhand/extentions/string_extensions.dart';
 import 'package:i18n_extension/default.i18n.dart';
 
 class LinkSelectionDialog extends StatefulWidget {
@@ -20,13 +17,11 @@ class LinkSelectionDialog extends StatefulWidget {
   final String currentSelection;
   final bool hideSearch;
   final InputDecoration searchDecoration;
-  final TextStyle searchStyle;
 
   LinkSelectionDialog(
       {@required this.headerTitle,
         this.hideSearch,
         this.searchDecoration,
-        this.searchStyle,
         @required this.objectType,
         this.parentSelection = false,
         this.sireSelection = false,
@@ -74,7 +69,7 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
               children: <Widget>[
                 cardHeader(context: context, text: widget.headerTitle),
                 verticalSpace(context, 0.02),
-                searchBar(),
+                searchBar(context: context, filterFunction: _filterElements, searchDecoration: widget.searchDecoration),
                 verticalSpace(context, 0.01),
                 dropdownRow()
               ],
@@ -88,20 +83,15 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
           height: displayHeight(context) * 0.4,
           width: displayWidth(context) * 0.7,
           child: _dataLoaded
-              ? Scrollbar(
-            child: Container(
-              child: ListView.builder(
-                controller: _controller,
-                itemBuilder: (BuildContext context, int index) {
-                  return _animalTile(index: index);
-                },
-                itemCount: _viewElements.length,
-              ),
-            ),
-          )
+              ? Stack(
+                children: [
+                  noResults(context: context, opaque: _viewElements.isEmpty),
+                  mainList(controller: _controller, item: _animalTile, itemCount: _viewElements.length)
+                ],
+              )
               : loadingIndicator(context: context)),
-      _scrollIndicator(),
-      _buttonRow()
+      scrollIndicator(context: context, scrollLeft: _scrollLeft),
+      buttonRow(context: context, selection: _selected, disabled: (_selected == null || _selected.trim() == ''))
     ],
   );
 
@@ -127,7 +117,7 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
       showType = widget.objectType;
       String querySex = widget.sireSelection? 'Male' : 'Female';
       _tableElements = await queryAll(table: Animal.table);
-      _setElements = _tableElements.where((element) => element.animalType == showType && element.sex == querySex).toSet();
+      _setElements = _tableElements.where((element) => element.objectType == showType && element.sex == querySex).toSet();
       _viewElements.addAll(_setElements);
     }
     _buildTypeList();
@@ -142,7 +132,7 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
     String querySex = widget.sireSelection? 'Male' : 'Female';
     _setElements = showType == 'All'?
     _tableElements.where((element) => element.sex == querySex).toSet() :
-    _tableElements.where((element) => element.animalType == showType && element.sex == querySex).toSet();
+    _tableElements.where((element) => element.objectType == showType && element.sex == querySex).toSet();
     _viewElements.clear();
     _viewElements.addAll(_setElements);
     _filterElements(searchQuery);
@@ -194,7 +184,7 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
     });
   }
 
-  _animalTile({@required int index}) {
+  Widget _animalTile({@required int index}) {
     var item = _viewElements.elementAt(index);
     bool isAnimal = item.runtimeType == Animal;
     bool isCurrent = _selected == item.serial;
@@ -223,7 +213,7 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           identifierText(identifier: item.displayIdentifier),
-                          isAnimal? animalTypeText(sex: item.sex, typeText: item.animalType) : typeText(typeText: item.objectType)
+                          isAnimal? animalTypeText(sex: item.sex, typeText: item.objectType) : typeText(typeText: item.objectType)
                         ],
                       ),
                     ),
@@ -286,43 +276,8 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
     );
   }
 
-  /**Widget checkboxRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Checkbox(value: _childTypeOnly,
-          activeColor: Color(0xFFFF6159),
-          checkColor: Colors.white,
-          onChanged: (bool newValue) {
-              _childTypeOnly = newValue;
-              _changeMasterSet();
-          },),
-        Text(
-          "Type ".i18n,
-          style: GoogleFonts.notoSans(
-            color: Colors.black38,
-            fontSize: displayWidth(context) * 0.03,
-          ),
-        ),
-        Text(
-          widget.objectType.i18n,
-          style: GoogleFonts.notoSans(
-              color: primaryRed(),
-              fontSize: displayWidth(context) * 0.03,
-              fontWeight: FontWeight.bold),
-        ),
-        Text(
-          " only".i18n,
-          style: GoogleFonts.notoSans(
-            color: Colors.black38,
-            fontSize: displayWidth(context) * 0.03,
-          ),
-        )
-      ],
-    );
-  }**/
-
   Widget dropdownRow() {
+    print(_typeOptions);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
@@ -349,72 +304,6 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
           ),
         )
       ],
-    );
-  }
-
-  Widget _buttonRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: <Widget>[
-        MaterialButton(
-          child: Text(
-            "Cancel",
-            style: GoogleFonts.notoSans(
-                color: Colors.grey,
-                //fontWeight: FontWeight.bold,
-                fontSize: displayWidth(context) * 0.04),
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        MaterialButton(
-          child: Text(
-            "Select",
-            style: GoogleFonts.notoSans(
-                color: (_selected == null || _selected.trim() == '')
-                    ? primaryFaded()
-                    : primaryRed(),
-                fontWeight: FontWeight.bold,
-                fontSize: displayWidth(context) * 0.04),
-          ),
-          onPressed: (_selected == null || _selected.trim() == '')
-              ? null
-              : () {
-            Navigator.pop(context, _selected.trim().capitalize());
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _scrollIndicator() {
-    return Container(
-        padding: EdgeInsets.only(top: displayHeight(context) * 0.01),
-        height: displayHeight(context) * 0.02,
-        child: AnimatedOpacity(
-          opacity: _scrollLeft ? 1.0 : 0.0,
-          duration: Duration(milliseconds: 250),
-          child: Icon(
-            Icons.keyboard_arrow_down,
-            color: primaryRed(),
-          ),
-        ));
-  }
-
-  Widget searchBar() {
-    return Container(
-      alignment: Alignment.centerLeft,
-      height: displayHeight(context) * 0.067,
-      width: displayWidth(context) * 0.75,
-      decoration: roundedShadowDecoration(
-          context: context, color: secondaryRed(), size: 0.015),
-      child: TextField(
-        onChanged: (value) => _filterElements(value),
-        cursorColor: Colors.white,
-        style: widget.searchStyle,
-        decoration: widget.searchDecoration,
-      ),
     );
   }
 }

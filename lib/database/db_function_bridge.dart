@@ -13,10 +13,10 @@ Future<Object> readObject({@required String objectId, @required String objectTyp
     Animal animal;
     objectTable = Animal.table;
     objectColumns = Animal.columns;
-    rawTableData = await helper.queryObject(
+    /** rawTableData = await helper.queryObject(
         objectTable: objectTable,
         objectColumns: objectColumns,
-        objectId: objectId.toLowerCase());
+        objectId: objectId.toLowerCase()); **/
     if (rawTableData.length > 0) animal = Animal.fromMap(rawTableData);
     return animal;
   } else {
@@ -35,10 +35,16 @@ Future<Set> readColumn({@required String objectTable, @required String objectCol
   return uniqueColumnItems;
 }
 
-save({@required String objectTable, object}) async {
+save({@required String objectTable, @required object}) async {
   DatabaseHelper helper = DatabaseHelper.instance;
   int id = await helper.insertObject(objectTable: Animal.table, object: object);
   print('inserted row: $id');
+}
+
+update({@required String objectTable, @required object}) async {
+  DatabaseHelper helper = DatabaseHelper.instance;
+  int id = await helper.updateObject(objectTable: objectTable, object: object);
+  print('updated row: $id');
 }
 
 /// Returns all objects in a table
@@ -51,8 +57,28 @@ Future<Set> queryAll({@required String table}) async {
   if (table == Animal.table) {
     rawData.forEach((map) => objectSet.add(Animal.fromMap(map)));
   }
-
   return objectSet;
+}
 
+querySerial({@required String table, @required String serial}) async {
+  DatabaseHelper helper = DatabaseHelper.instance;
+  var object;
+
+  if (table == Animal.table) {
+    var rawData = await helper.queryObjectSerial(objectTable: table, objectColumns: Animal.columns, objectSerial: serial);
+    object = Animal.fromMap(rawData);
+  }
+  return object;
+}
+
+Future<bool> checkId({@required String id, @required String table}) async {
+  DatabaseHelper helper = DatabaseHelper.instance;
+  bool exists = false;
+
+  if (table == Animal.table) {
+    var rawData = await helper.queryObjectId(objectTable: table, objectColumns: Animal.columns, objectId: id);
+    exists = rawData != null && rawData.isNotEmpty;
+  }
+  return exists;
 }
 

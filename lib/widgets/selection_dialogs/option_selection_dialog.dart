@@ -1,12 +1,11 @@
 import 'package:fieldhand/database/db_function_bridge.dart';
 import 'package:fieldhand/screen_sizing.dart';
 import 'package:fieldhand/widgets/elements.dart';
-import 'package:fieldhand/widgets/style_elements.dart';
+import 'package:fieldhand/widgets/selection_dialogs/selection_dialog_elements.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fieldhand/extentions/string_extensions.dart';
-import 'package:fieldhand/translations/options_dialog.i18n.dart';
 import 'package:fieldhand/translations/animal.i18n.dart';
 
 class OptionSelectionDialog extends StatefulWidget {
@@ -17,14 +16,12 @@ class OptionSelectionDialog extends StatefulWidget {
   final List<String> defaultOptions;
   final bool hideSearch;
   final InputDecoration searchDecoration;
-  final TextStyle searchStyle;
   final bool sortAlpha;
 
   OptionSelectionDialog(
       {@required this.headerTitle,
       this.hideSearch,
       this.searchDecoration,
-      this.searchStyle,
       this.sortAlpha = false,
       @required this.objectTable,
       @required this.objectColumns,
@@ -73,7 +70,7 @@ class _OptionSelectionDialogState extends State<OptionSelectionDialog> {
                   children: <Widget>[
                     cardHeader(context: context, text: widget.headerTitle),
                     verticalSpace(context, 0.02),
-                    searchBar(),
+                    searchBar(context: context, filterFunction: _filterElements, searchDecoration: widget.searchDecoration),
                     verticalSpace(context, 0.02),
                   ],
                 ),
@@ -86,21 +83,25 @@ class _OptionSelectionDialogState extends State<OptionSelectionDialog> {
               height: displayHeight(context) * 0.4,
               width: displayWidth(context) * 0.7,
               child: _dataLoaded
-                  ? Scrollbar(
-                      child: Container(
-                        child: ListView.builder(
-                          controller: _controller,
-                          itemBuilder: (BuildContext context, int index) {
-                            if (index == _viewElements.length) return _newTile();
-                            return _optionTile(index: index);
-                          },
-                          itemCount: _viewElements.length + 1,
+                  ? Stack(
+                    children: [
+                      Scrollbar(
+                          child: Container(
+                            child: ListView.builder(
+                              controller: _controller,
+                              itemBuilder: (BuildContext context, int index) {
+                                if (index == _viewElements.length) return _newTile();
+                                return _optionTile(index: index);
+                              },
+                              itemCount: _viewElements.length + 1,
+                            ),
+                          ),
                         ),
-                      ),
-                    )
+                    ],
+                  )
                   : loadingIndicator(context: context)),
-          _scrollIndicator(),
-          _buttonRow()
+          scrollIndicator(context: context, scrollLeft: _scrollLeft),
+          buttonRow(context: context, selection: _selected?.trim()?.capitalize(), disabled: (_selected == null || _selected.trim() == ''))
         ],
       );
 
@@ -124,7 +125,7 @@ class _OptionSelectionDialogState extends State<OptionSelectionDialog> {
   /// Populates set with default types and unique types from database
   void _getSet() async {
     _setElements = await readColumn(objectTable: widget.objectTable, objectColumn: widget.objectColumns);
-    _setElements.addAll(widget.defaultOptions);
+    if (widget.defaultOptions != null) _setElements.addAll(widget.defaultOptions);
     if (widget.currentSelection != null) _setElements.add(widget.currentSelection);
     _viewElements.addAll(_setElements);
     if (widget.sortAlpha) _viewElements.sort();
@@ -294,71 +295,6 @@ class _OptionSelectionDialogState extends State<OptionSelectionDialog> {
         _selected = 'new';
         _isNew();
       },
-    );
-  }
-
-  Widget _buttonRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: <Widget>[
-        MaterialButton(
-          child: Text(
-            "Cancel".i18n,
-            style: GoogleFonts.notoSans(
-                color: Colors.grey,
-                fontSize: displayWidth(context) * 0.04),
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        MaterialButton(
-          child: Text(
-            "Select".i18n,
-            style: GoogleFonts.notoSans(
-                color: (_selected == null || _selected.trim() == '')
-                    ? primaryFaded()
-                    : primaryRed(),
-                fontWeight: FontWeight.bold,
-                fontSize: displayWidth(context) * 0.04),
-          ),
-          onPressed: (_selected == null || _selected.trim() == '')
-              ? null
-              : () {
-            Navigator.pop(context, _selected.trim().capitalize());
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _scrollIndicator() {
-    return Container(
-        padding: EdgeInsets.only(top: displayHeight(context) * 0.01),
-        height: displayHeight(context) * 0.02,
-        child: AnimatedOpacity(
-          opacity: _scrollLeft ? 1.0 : 0.0,
-          duration: Duration(milliseconds: 250),
-          child: Icon(
-            Icons.keyboard_arrow_down,
-            color: primaryRed(),
-          ),
-        ));
-  }
-
-  Widget searchBar() {
-    return Container(
-      alignment: Alignment.centerLeft,
-      height: displayHeight(context) * 0.067,
-      width: displayWidth(context) * 0.75,
-      decoration: roundedShadowDecoration(
-          context: context, color: secondaryRed(), size: 0.015),
-      child: TextField(
-        onChanged: (value) => _filterElements(value),
-        cursorColor: Colors.white,
-        style: widget.searchStyle,
-        decoration: widget.searchDecoration,
-      ),
     );
   }
 }

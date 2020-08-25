@@ -81,7 +81,7 @@ class Animal {
   String identifier;
   String displayIdentifier;
   String thumbLocation = imgList[0];
-  String animalType;
+  String objectType;
   String sex;
   String acquisition;
   String currentStatus;
@@ -106,7 +106,7 @@ class Animal {
     identifier = map[columnId];
     displayIdentifier = map[columnDisplayId];
     thumbLocation = map[columnThumb];
-    animalType = map[columnType];
+    objectType = map[columnType];
     sex = map[columnSex];
     acquisition = map[columnAcquisition];
     currentStatus = map[columnStatus];
@@ -131,7 +131,7 @@ class Animal {
       columnId: identifier,
       columnDisplayId: displayIdentifier,
       columnThumb: thumbLocation,
-      columnType: animalType,
+      columnType: objectType,
       columnSex: sex,
       columnAcquisition: acquisition,
       columnStatus: currentStatus,
@@ -164,12 +164,14 @@ class Animal {
   static String get sexColumn => columnSex;
   static String get acquisitionColumn => columnAcquisition;
   static String get statusColumn => columnStatus;
+  static String get breedColumn => columnBreed;
 
   /// Setters for options fields
-  set setAnimalType(String value) => this.animalType = value;
+  set setObjectType(String value) => this.objectType = value;
   set setSex(String value) => this.sex = value;
   set setAcquisition(String value) => this.acquisition = value;
   set setStatus(String value) => this.currentStatus = value;
+  set setBreed(String value) => this.breed = value;
   set setThumbnail(String value) => this.thumbLocation = value;
 
   /// Setters for date fields

@@ -58,6 +58,7 @@ Widget textArea({
   @required String hint,
   @required IconData icon,
   bool invert = false,
+  TextEditingController editingController,
   Function onChanged}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,6 +81,7 @@ Widget textArea({
           children: <Widget>[
             Expanded(
               child: TextField(
+                controller: editingController,
                 keyboardType: TextInputType.multiline,
                 onChanged: onChanged,
                 minLines: 1,

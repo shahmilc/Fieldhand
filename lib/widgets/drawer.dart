@@ -134,9 +134,9 @@ class _SideDrawerState extends State<SideDrawer> {
             Text(
               text,
               style: GoogleFonts.notoSans(
-                textStyle: TextStyle(color: _isCurrent? Colors.white : Colors.black54),
-                fontSize: displayWidth(context) * 0.052,
-                fontWeight: FontWeight.normal,
+                textStyle: TextStyle(color: _isCurrent? Colors.white : Colors.black38),
+                fontSize: displayWidth(context) * 0.05,
+                fontWeight: _isCurrent? FontWeight.bold : FontWeight.normal,
               ),
             ),
           ],

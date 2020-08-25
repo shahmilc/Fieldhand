@@ -11,7 +11,12 @@ String generateObjectSerial() => String.fromCharCodes(Iterable.generate(
 
 // Convert Iso8601String to locale specific date format
 String convertDate(String date) {
-  return DateFormat.yMMMd(I18n.locale.toString()).format(DateTime.parse(date));
+  try {
+    return DateFormat.yMMMd(I18n.locale.toString()).format(
+        DateTime.parse(date));
+  } catch(e) {
+    return date;
+  }
 }
 
 // Get image name from image address

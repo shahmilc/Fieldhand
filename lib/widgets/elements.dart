@@ -9,25 +9,29 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:i18n_extension/default.i18n.dart';
 
-Widget generalBlueButton({@required BuildContext context, @required String text, void Function() function}) {
-  return Container(
-    width: displayWidth(context) * 0.75,
-    height: displayHeight(context) * 0.07,
-    child: RaisedButton(
-      elevation: 5,
-      color: Color(0xFF5CBDEA),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(displayWidth(context) * 0.015),
+Widget generalBlueButton({@required BuildContext context, @required String text, void Function() function, bool disabled = false}) {
+  return Opacity(
+    opacity: disabled? 0.5 : 1.0,
+    child: Container(
+      width: displayWidth(context) * 0.75,
+      height: displayHeight(context) * 0.07,
+      child: RaisedButton(
+        disabledColor: Color(0xFF5CBDEA),
+        elevation: 5,
+        color: Color(0xFF5CBDEA),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(displayWidth(context) * 0.015),
+        ),
+        child: Text(
+          text,
+          style: GoogleFonts.notoSans(
+              textStyle: TextStyle(color: Colors.white),
+              fontSize: displayWidth(context) * 0.05,
+              fontWeight: FontWeight.w800,
+              letterSpacing: displayWidth(context) * 0.005),
+        ),
+        onPressed: disabled? null : function,
       ),
-      child: Text(
-        text,
-        style: GoogleFonts.notoSans(
-            textStyle: TextStyle(color: Colors.white),
-            fontSize: displayWidth(context) * 0.05,
-            fontWeight: FontWeight.w800,
-            letterSpacing: displayWidth(context) * 0.005),
-      ),
-      onPressed: function,
     ),
   );
 }
@@ -42,7 +46,7 @@ Widget imageThumbnail(
       List defaultImages,
       ValueSetter fieldSetter,
       String objectSerial,
-      Function handleReturn}) {
+      bool readBytes = false}) {
   if (editHeader == null) editHeader = "Image".i18n;
   return Container(
     width: displayWidth(context) * size,
@@ -57,12 +61,12 @@ Widget imageThumbnail(
         child: Stack(
           alignment: Alignment.bottomCenter,
           children: <Widget>[
-            getImageFile(item: imagePath),
+            getImageFile(item: imagePath, readBytes: readBytes),
             if (editable) SizedBox(
               height: displayWidth(context) * size * 0.25,
               width: displayWidth(context) * size,
               child: InkWell(
-                onTap: () => showImageSelectionDialog(context: context, header: editHeader, currentImage: imagePath, defaultImages: defaultImages, fieldSetter: fieldSetter, objectSerial: objectSerial, handleReturn: handleReturn),
+                onTap: () => showImageSelectionDialog(context: context, header: editHeader, currentImage: imagePath, defaultImages: defaultImages, fieldSetter: fieldSetter, objectSerial: objectSerial),
                 child: Container(
                   color: primaryRed().withOpacity(0.85),
                   child: Row(
@@ -83,11 +87,13 @@ Widget imageThumbnail(
   );
 }
 
-getImageFile({@required String item}) {
+getImageFile({@required String item, @required bool readBytes}) {
   if (item.split('/')[0] == 'assets') {
-    return Image.asset(item,);
-  } else {
+    return Image.asset(item);
+  } else if (readBytes) {
     return Image.memory(File(item).readAsBytesSync());
+  } else {
+    return Image.file(File(item));
   }
 }
 
@@ -120,7 +126,7 @@ Widget topBar({@required BuildContext context}) {
   );
 }
 
-Widget inputForm({@required BuildContext context, @required String header, @required String hint, bool obscure = false, @required IconData icon, bool invert = false, Function onChanged, int maxLength = 30}) {
+Widget inputForm({@required BuildContext context, @required String header, @required String hint, bool obscure = false, @required IconData icon, bool invert = false, Function onChanged, int maxLength = 30, TextEditingController editingController}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
@@ -138,6 +144,7 @@ Widget inputForm({@required BuildContext context, @required String header, @requ
         width: displayWidth(context) * 0.75,
         decoration: roundedShadowDecoration(context: context, color: secondaryRed(), size: 0.015),
         child: TextField(
+          controller: editingController,
           onChanged: onChanged,
           obscureText: obscure,
           cursorColor: Colors.white,
@@ -162,29 +169,32 @@ Widget inputForm({@required BuildContext context, @required String header, @requ
   );
 }
 
-Widget textDivider({@required BuildContext context, @required String text, @required Color color, double scaleFactor = 1.0}) {
-  return Row(
-    children: <Widget>[
-      Expanded(
-          child: Divider(
-            indent: displayWidth(context) * 0.25 / scaleFactor,
-            endIndent: displayWidth(context) * 0.04 / scaleFactor,
-            color: color,
-          )),
-      Text(text,
-          style: GoogleFonts.notoSans(
-              fontSize: displayWidth(context) * 0.025 * scaleFactor,
-              fontWeight: FontWeight.w200,
-              letterSpacing: displayWidth(context) * 0.005 * scaleFactor,
-              color: color)),
-      Expanded(
-          child: Divider(
-            indent: displayWidth(context) * 0.04 / scaleFactor,
-            endIndent: displayWidth(context) * 0.25 / scaleFactor,
-            color: color,
-          )),
-    ],
-  );
+Widget textDivider({@required BuildContext context, @required String text, @required Color color, double scaleFactor = 1.0, bool enabled = true, bool padding = false}) {
+  return enabled? Padding(
+    padding: EdgeInsets.symmetric(vertical: padding? displayHeight(context) * 0.03 : 0),
+    child: Row(
+      children: <Widget>[
+        Expanded(
+            child: Divider(
+              indent: displayWidth(context) * 0.25 / scaleFactor,
+              endIndent: displayWidth(context) * 0.04 / scaleFactor,
+              color: color,
+            )),
+        Text(text,
+            style: GoogleFonts.notoSans(
+                fontSize: displayWidth(context) * 0.025 * scaleFactor,
+                fontWeight: FontWeight.w200,
+                letterSpacing: displayWidth(context) * 0.005 * scaleFactor,
+                color: color)),
+        Expanded(
+            child: Divider(
+              indent: displayWidth(context) * 0.04 / scaleFactor,
+              endIndent: displayWidth(context) * 0.25 / scaleFactor,
+              color: color,
+            )),
+      ],
+    ),
+  ) : Container();
 }
 
 Widget cardHeader({@required BuildContext context, @required String text}) {
@@ -252,13 +262,13 @@ Widget contactUsRow({@required BuildContext context, @required String text1, @re
   );
 }
 
-loadingIndicator({@required BuildContext context}) {
+loadingIndicator({@required BuildContext context, Color color}) {
   return Center(
     child: SizedBox(
       height: displayWidth(context) * 0.12,
       width: displayWidth(context) * 0.12,
       child: CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(primaryRed()),
+        valueColor: color != null? AlwaysStoppedAnimation<Color>(color) : AlwaysStoppedAnimation<Color>(primaryRed()),
         strokeWidth: 1,
       ),
     ),

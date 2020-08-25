@@ -1,4 +1,4 @@
-import 'package:fieldhand/branch/add_animal.dart';
+import 'package:fieldhand/branch/animal_entry.dart';
 import 'package:fieldhand/computation/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -34,40 +34,33 @@ class _CentralSliverAppBarState extends State<CentralSliverAppBar> {
   Widget build(BuildContext context) {
     return SliverAppBar(
       leading: Builder(
-        builder: (context) => Padding(
-          padding:
-          EdgeInsets.only(bottom: displayHeight(context) * 0.015),
-          child: IconButton(
-              splashColor: Colors.transparent,
-              focusColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-              icon: Icon(
-                Icons.menu,
-                color: Colors.white,
-                size: displayWidth(context) * 0.07,
-              )),
-        ),
-      ),
-      floating: true,
-      expandedHeight: displayHeight(context) * 0.3,
-      actions: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(bottom: displayHeight(context) * 0.015),
-          child: IconButton(
+        builder: (context) => IconButton(
             splashColor: Colors.transparent,
             focusColor: Colors.transparent,
             highlightColor: Colors.transparent,
             onPressed: () {
+              Scaffold.of(context).openDrawer();
             },
             icon: Icon(
-              Icons.sync,
+              Icons.menu,
               color: Colors.white,
               size: displayWidth(context) * 0.07,
             )),
-        )],
+      ),
+      floating: true,
+      expandedHeight: displayHeight(context) * 0.3,
+      actions: <Widget>[
+        IconButton(
+          splashColor: Colors.transparent,
+          focusColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onPressed: () {
+          },
+          icon: Icon(
+            Icons.sync,
+            color: Colors.white,
+            size: displayWidth(context) * 0.07,
+          ))],
       // Display a placeholder widget to visualize the shrinking size.
       elevation: 0,
       backgroundColor: Colors.transparent,
@@ -106,7 +99,7 @@ class _CentralSliverAppBarState extends State<CentralSliverAppBar> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  _sideButton(text: 'Add'.i18n, icon: Icons.add, function: () {navigate(context: context, page: AddAnimal(), direction: 'right', fromDrawer: false);}),
+                  _sideButton(text: 'Add'.i18n, icon: Icons.add, function: () {navigate(context: context, page: AnimalEntry(edit: false), direction: 'right', fromDrawer: false);}),
                   horizontalSpace(context, 0.02),
                   _searchField(),
                   horizontalSpace(context, 0.02),
@@ -127,7 +120,7 @@ class _CentralSliverAppBarState extends State<CentralSliverAppBar> {
       child: AnimatedContainer(
         duration: Duration(milliseconds: 150),
         width: displayWidth(context) * (_activeSearchBar? 0.65 : 0.33),
-        height: displayHeight(context) * 0.06,
+        height: displayHeight(context) * 0.055,
         child: RaisedButton(
           elevation: 8,
           color: Colors.white,
@@ -183,8 +176,8 @@ class _CentralSliverAppBarState extends State<CentralSliverAppBar> {
   _sideButton({@required String text, @required IconData icon, Function function}) {
     return AnimatedContainer(
       duration: Duration(milliseconds: 150),
-      width: displayWidth(context) * (_activeSearchBar? 0.13 : 0.23),
-      height: displayHeight(context) * 0.06,
+      width: displayWidth(context) * (_activeSearchBar? 0.13 : 0.25),
+      height: displayHeight(context) * 0.055,
       child: RaisedButton(
         elevation: 8,
         color: Colors.white,
