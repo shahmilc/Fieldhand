@@ -60,32 +60,34 @@ class _AnimalEntryState extends State<AnimalEntry> {
         String matchingImagePath = Animal.imgList.where((String imagePath) => getImageName(imagePath) == selection).first;
         setterThumbnail(matchingImagePath);
       }
-      setState(() {animal.setObjectType = selection;});
+      setState(() {animal.setObjectType = selection; saveCheck();});
     };
 
-    setterSex = (selection) => setState((){animal.setSex = selection;});
-    setterAcquisition = (selection) => setState((){animal.setAcquisition = selection;});
-    setterStatus = (selection) => setState((){animal.setStatus = selection;});
-    setterBreed = (selection) => setState((){animal.setBreed = selection;});
+    setterSex = (selection) => setState((){animal.setSex = selection; saveCheck();});
+    setterAcquisition = (selection) => setState((){animal.setAcquisition = selection; saveCheck();});
+    setterStatus = (selection) => setState((){animal.setStatus = selection; saveCheck();});
+    setterBreed = (selection) => setState((){animal.setBreed = selection; saveCheck();});
 
     /// Setter wrapper function for image selection
     setterThumbnail = (imagePath) => setState((){animal.setThumbnail = imagePath;});
 
     /// Setter wrapper functions for date fields
-    setterBirthDate = (date) => setState((){animal.setBirthDate = date;});
-    setterDeathDate = (date) => setState((){animal.setDeathDate = date;});
-    setterPurchaseDate = (date) => setState((){animal.setPurchaseDate = date;});
-    setterSoldDate = (date) => setState((){animal.soldDate = date;});
-    setterDueDate = (date) => setState((){animal.dueDate = date;});
+    setterBirthDate = (date) => setState((){animal.setBirthDate = date; saveCheck();});
+    setterDeathDate = (date) => setState((){animal.setDeathDate = date; saveCheck();});
+    setterPurchaseDate = (date) => setState((){animal.setPurchaseDate = date; saveCheck();});
+    setterSoldDate = (date) => setState((){animal.soldDate = date; saveCheck();});
+    setterDueDate = (date) => setState((){animal.dueDate = date; saveCheck();});
 
     /// Setter wrapper functions for links
     setterDam = (selection) {
       animal.setDam = selection;
       findLinks();
+      saveCheck();
     };
     setterSire = (selection) {
       animal.setSire = selection;
       findLinks();
+      saveCheck();
     };
   }
 
@@ -245,7 +247,7 @@ class _AnimalEntryState extends State<AnimalEntry> {
                 icon: CustomIcons.pets,
                 objectTable: Animal.table,
                 objectColumn: Animal.breedColumn,
-                fieldSetter: setterStatus,
+                fieldSetter: setterBreed,
                 fieldCurrent: animal.breed,
                 defaultValues: null),
             verticalSpace(context, 0.03),
@@ -261,7 +263,8 @@ class _AnimalEntryState extends State<AnimalEntry> {
                 fieldCurrent: animal.dam,
                 currentId: links['damId'],
                 disabled: animal.objectType == null,
-                disabledText: 'Type required'.i18n),
+                disabledHint: 'Type required'.i18n,
+                origin: animal.serial),
             verticalSpace(context, 0.03),
             linkInputButton(
                 context: context,
@@ -275,7 +278,8 @@ class _AnimalEntryState extends State<AnimalEntry> {
                 fieldCurrent: animal.sire,
                 currentId: links['sireId'],
                 disabled: animal.objectType == null,
-                disabledText: 'Type required'.i18n),
+                disabledHint: 'Type required'.i18n,
+                origin: animal.serial),
             verticalSpace(context, 0.03),
             textArea(
                 editingController: notesController,
@@ -302,7 +306,7 @@ class _AnimalEntryState extends State<AnimalEntry> {
                         page: Livestock(),
                         direction: 'right',
                         fromDrawer: false,
-                        replace: true);
+                        pop: true);
                   }
                 }),
             verticalSpace(context, 0.01),
@@ -343,5 +347,5 @@ class _AnimalEntryState extends State<AnimalEntry> {
     if (animal.currentStatus != 'Sold') animal.soldDate = null;
     if (animal.acquisition != 'Purchased') animal.purchaseDate = null;
   }
-  
+
 }

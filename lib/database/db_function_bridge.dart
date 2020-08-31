@@ -48,7 +48,7 @@ update({@required String objectTable, @required object}) async {
 }
 
 /// Returns all objects in a table
-Future<Set> queryAll({@required String table}) async {
+Future<Set> queryType({@required String table}) async {
   DatabaseHelper helper = DatabaseHelper.instance;
   List rawData = List();
   Set objectSet = Set();
@@ -57,6 +57,16 @@ Future<Set> queryAll({@required String table}) async {
   if (table == Animal.table) {
     rawData.forEach((map) => objectSet.add(Animal.fromMap(map)));
   }
+  return objectSet;
+}
+
+Future<Set> queryAll() async {
+  DatabaseHelper helper = DatabaseHelper.instance;
+  List rawData = List();
+  Set objectSet = Set();
+  /// TODO
+  rawData = await helper.queryAll(table: Animal.table);
+  rawData.forEach((map) => objectSet.add(Animal.fromMap(map)));
   return objectSet;
 }
 

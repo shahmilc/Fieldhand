@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'package:fieldhand/objects/task.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:fieldhand/objects/animal.dart';
+import 'package:fieldhand/objects/animal.dart' as animal;
+import 'package:fieldhand/objects/task.dart' as task;
 
 // singleton class to manage the database
 class DatabaseHelper {
@@ -37,27 +39,42 @@ class DatabaseHelper {
   // SQL string to create the database
   Future _onCreate(Database db, int version) async {
     await db.execute('''
-              CREATE TABLE IF NOT EXISTS $tableLivestock (
-                $columnId TEXT PRIMARY KEY,
-                $columnDisplayId TEXT,
-                $columnThumb TEXT,
-                $columnType TEXT NOT NULL,
-                $columnSex TEXT NOT NULL,
-                $columnAcquisition TEXT,
-                $columnStatus TEXT,
-                $columnBirth TEXT,
-                $columnDeath TEXT,
-                $columnPurchase TEXT,
-                $columnSold TEXT,
-                $columnDue TEXT,
-                $columnDam TEXT,
-                $columnSire TEXT,
-                $columnBreed TEXT,
-                $columnTasks TEXT,
-                $columnNotes TEXT,
-                $columnEditDate TEXT,
-                $columnEditUser TEXT,
-                $columnSerial TEXT NOT NULL
+              CREATE TABLE IF NOT EXISTS ${animal.tableLivestock} (
+                ${animal.columnSerial} TEXT NOT NULL PRIMARY KEY,
+                ${animal.columnId} TEXT NOT NULL,
+                ${animal.columnDisplayId} TEXT,
+                ${animal.columnThumb} TEXT,
+                ${animal.columnType} TEXT NOT NULL,
+                ${animal.columnSex} TEXT NOT NULL,
+                ${animal.columnAcquisition} TEXT,
+                ${animal.columnStatus} TEXT,
+                ${animal.columnBirth} TEXT,
+                ${animal.columnDeath} TEXT,
+                ${animal.columnPurchase} TEXT,
+                ${animal.columnSold} TEXT,
+                ${animal.columnDue} TEXT,
+                ${animal.columnDam} TEXT,
+                ${animal.columnSire} TEXT,
+                ${animal.columnBreed} TEXT,
+                ${animal.columnTasks} TEXT,
+                ${animal.columnNotes} TEXT,
+                ${animal.columnEditDate} TEXT,
+                ${animal.columnEditUser} TEXT
+              )
+              ''');
+    await db.execute('''
+              CREATE TABLE IF NOT EXISTS ${task.tableTask} (
+                ${task.columnSerial} TEXT NOT NULL PRIMARY KEY,
+                ${task.columnId} TEXT NOT NULL,
+                ${task.columnActive} INTEGER NOT NULL,
+                ${task.columnType} TEXT NOT NULL,
+                ${task.columnPriority} INTEGER NOT NULL,
+                ${task.columnDeadline} TEXT,
+                ${task.columnSubjects} TEXT,
+                ${task.columnStaff} TEXT,
+                ${task.columnNotes} TEXT,
+                ${task.columnEditDate} TEXT,
+                ${task.columnEditUser} TEXT
               )
               ''');
   }
@@ -121,7 +138,7 @@ class DatabaseHelper {
   Future<bool> deleteItem(String id) async {
     Database db = await database;
     try {
-      await db.delete(tableLivestock, where: '$columnId = ?', whereArgs: [id]);
+      await db.delete(animal.tableLivestock, where: '$columnId = ?', whereArgs: [id]);
       return true;
     } catch (e) {
       return false;

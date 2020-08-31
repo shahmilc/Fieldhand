@@ -149,9 +149,6 @@ class Animal {
       columnEditUser: editUser,
       columnSerial: serial,
     };
-    if (identifier != null) {
-      map[columnId] = identifier;
-    }
     return map;
   }
 

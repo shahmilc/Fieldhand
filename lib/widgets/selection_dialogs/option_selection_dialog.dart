@@ -141,7 +141,7 @@ class _OptionSelectionDialogState extends State<OptionSelectionDialog> {
   void _translateSet() {
     for (int i = 0; i < _setElements.length; i++) {
       String element = _setElements.elementAt(i);
-      if (widget.defaultOptions.contains(element)) {
+      if (widget.defaultOptions?.contains(element)?? false) {
         _translatedSetElements.putIfAbsent(element, () => element.i18n);
       } else {
         _translatedSetElements.putIfAbsent(element, () => element);

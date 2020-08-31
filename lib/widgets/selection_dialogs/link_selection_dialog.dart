@@ -16,16 +16,24 @@ class LinkSelectionDialog extends StatefulWidget {
   final bool sireSelection;
   final String currentSelection;
   final bool hideSearch;
+  final bool hideDropdown;
+  final bool multi;
   final InputDecoration searchDecoration;
+  final String origin;
+  final bool excludeOrigin;
 
   LinkSelectionDialog(
       {@required this.headerTitle,
-        this.hideSearch,
-        this.searchDecoration,
+        @required this.hideSearch,
+        @required this.hideDropdown,
+        @required this.multi,
+        @required this.searchDecoration,
         @required this.objectType,
-        this.parentSelection = false,
-        this.sireSelection = false,
-        @required this.currentSelection});
+        @required this.parentSelection,
+        @required this.sireSelection,
+        @required this.currentSelection,
+        @required this.origin,
+        @required this.excludeOrigin});
 
   @override
   State<StatefulWidget> createState() => _LinkSelectionDialogState();
@@ -71,7 +79,7 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
                 verticalSpace(context, 0.02),
                 searchBar(context: context, filterFunction: _filterElements, searchDecoration: widget.searchDecoration),
                 verticalSpace(context, 0.01),
-                dropdownRow()
+                if (!widget.hideDropdown) dropdownRow()
               ],
             ),
           )
@@ -116,8 +124,15 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
     if (widget.parentSelection) {
       showType = widget.objectType;
       String querySex = widget.sireSelection? 'Male' : 'Female';
-      _tableElements = await queryAll(table: Animal.table);
+      _tableElements = await queryType(table: Animal.table);
+      if (widget.excludeOrigin) _tableElements.removeWhere((element) => element.serial == widget.origin);
       _setElements = _tableElements.where((element) => element.objectType == showType && element.sex == querySex).toSet();
+      _viewElements.addAll(_setElements);
+    } else {
+      showType = 'All';
+      _tableElements = await queryAll();
+      if (widget.excludeOrigin) _tableElements.removeWhere((element) => element.serial == widget.origin);
+      _setElements.addAll(_tableElements);
       _viewElements.addAll(_setElements);
     }
     _buildTypeList();
@@ -128,24 +143,47 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
   }
 
   void _changeMasterSet({@required String newValue}) {
-    showType = newValue;
-    String querySex = widget.sireSelection? 'Male' : 'Female';
-    _setElements = showType == 'All'?
-    _tableElements.where((element) => element.sex == querySex).toSet() :
-    _tableElements.where((element) => element.objectType == showType && element.sex == querySex).toSet();
-    _viewElements.clear();
-    _viewElements.addAll(_setElements);
-    _filterElements(searchQuery);
+    if (widget.parentSelection) {
+      showType = newValue;
+      String querySex = widget.sireSelection ? 'Male' : 'Female';
+      _setElements = showType == 'All' ?
+      _tableElements.where((element) => element.sex == querySex).toSet() :
+      _tableElements.where((element) =>
+      element.objectType == showType && element.sex == querySex).toSet();
+      _viewElements.clear();
+      _viewElements.addAll(_setElements);
+      _filterElements(searchQuery);
+    } else {
+      showType = newValue;
+      _setElements = showType == 'All'?
+      _tableElements.where((element) => '${element.runtimeType}' == showType).toSet() :
+      _tableElements;
+      _viewElements.clear();
+      _viewElements.addAll(_setElements);
+      _filterElements(searchQuery);
+    }
   }
 
   void _buildTypeList() async {
-    if (widget.parentSelection) {
-      Set rawType = await readColumn(objectTable: Animal.table, objectColumn: Animal.typeColumn);
-      rawType.add(widget.objectType);
-      _typeOptions['All'] = 'All'.i18n;
-      for (int i = 0; i < rawType.length; i++) {
-        String element = rawType.elementAt(i);
-        _typeOptions[element] = element.i18n;
+    if (!widget.hideDropdown) {
+      if (widget.parentSelection) {
+        Set rawType = await readColumn(
+            objectTable: Animal.table, objectColumn: Animal.typeColumn);
+        rawType.add(widget.objectType);
+        _typeOptions['All'] = 'All'.i18n;
+        for (int i = 0; i < rawType.length; i++) {
+          String element = rawType.elementAt(i);
+          _typeOptions[element] = element.i18n;
+        }
+      } else {
+        _typeOptions = {
+          'All' : 'All'.i18n,
+          'Animal': 'Animal'.i18n,
+          'Machine': 'Machine'.i18n,
+          'Field': 'Field'.i18n,
+          'Property': 'Property'.i18n,
+          'Staff': 'Staff'.i18n
+        };
       }
     }
   }
@@ -277,7 +315,6 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
   }
 
   Widget dropdownRow() {
-    print(_typeOptions);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[

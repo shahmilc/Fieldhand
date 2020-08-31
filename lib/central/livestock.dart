@@ -1,4 +1,5 @@
 import 'package:fieldhand/branch/animal_entry.dart';
+import 'package:fieldhand/branch/task_entry.dart';
 import 'package:fieldhand/computation/general_functions.dart';
 import 'package:fieldhand/computation/navigation.dart';
 import 'package:fieldhand/database/db_function_bridge.dart';
@@ -87,7 +88,7 @@ class _LivestockState extends State<Livestock> {
   }
 
   getAnimals() async {
-    _animals = await queryAll(table: Animal.table);
+    _animals = await queryType(table: Animal.table);
     setState(() {
       _displayAnimals.addAll(_animals);
     });
@@ -265,7 +266,7 @@ class _LivestockState extends State<Livestock> {
                                 }),
                             sheetButton(text: 'Add Task'.i18n,
                                 icon: Icons.add_circle_outline,
-                                onPressed: () {}),
+                                onPressed: () {navigate(context: context, page: TaskEntry(edit: false), direction: 'right', fromDrawer: false);}),
                             sheetButton(text: 'Close'.i18n,
                                 icon: Icons.close,
                                 onPressed: () {
@@ -399,7 +400,7 @@ class _LivestockState extends State<Livestock> {
   
   Widget linkSingle({@required int index, @required String label, @required String serial}) {
     return serial != null? Padding(
-      padding: EdgeInsets.only(bottom: displayHeight(context) * 0.02),
+      padding: EdgeInsets.only(top: displayHeight(context) * 0.02),
       child: Column(
         children: [
           Text(label, style: GoogleFonts.notoSans(color: Colors.black26, fontSize: displayWidth(context) * 0.044)),
@@ -413,7 +414,7 @@ class _LivestockState extends State<Livestock> {
     List<Widget> links = List<Widget>();
     _displayAnimals.where((element) => (element.sire == _displayAnimals[index].serial) || (element.dam == _displayAnimals[index].serial)).toList().forEach((element) => links.add(_miniAnimalTile(index: _displayAnimals.indexOf(element))));
     return links.isNotEmpty? Padding(
-      padding: EdgeInsets.only(bottom: displayHeight(context) * 0.02),
+      padding: EdgeInsets.only(top: displayHeight(context) * 0.015),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
