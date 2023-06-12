@@ -3,6 +3,7 @@ import 'package:fieldhand/widgets/flutter_rounded_date_picker-1.0.4-local/rounde
 import 'package:fieldhand/widgets/flutter_rounded_date_picker-1.0.4-local/src/material_rounded_date_picker_style.dart';
 import 'package:fieldhand/widgets/selection_dialogs/image_selection_dialog.dart';
 import 'package:fieldhand/widgets/selection_dialogs/link_selection_dialog.dart';
+import 'package:fieldhand/widgets/selection_dialogs/multi_link_selection_dialog.dart';
 import 'package:fieldhand/widgets/selection_dialogs/option_selection_dialog.dart';
 import 'package:fieldhand/widgets/style_elements.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,8 @@ import 'package:i18n_extension/i18n_widget.dart';
 
 // Button for options selection form
 Widget optionInputButton(
-    {@required BuildContext context,
+    {@required String farmId,
+      @required BuildContext context,
     @required String header,
     @required String hint,
     @required IconData icon,
@@ -81,6 +83,7 @@ Widget optionInputButton(
                     barrierDismissible: false,
                     context: context,
                     builder: (_) => OptionSelectionDialog(
+                          farmId: farmId,
                           hideSearch: false,
                           headerTitle: header,
                           searchDecoration: miniSearchDecoration(context: context, text: 'Search'.i18n),
@@ -107,8 +110,7 @@ Widget linkInputButton(
       @required String objectType,
       bool hideSearch = false,
       bool hideDropdown = false,
-      bool multi = false,
-      bool parentSelection = false,
+      bool damSelection = false,
       bool sireSelection = false,
       @required ValueSetter fieldSetter,
       @required String fieldCurrent,
@@ -175,15 +177,103 @@ Widget linkInputButton(
                         builder: (_) => LinkSelectionDialog(
                           hideSearch: hideSearch,
                           hideDropdown: hideDropdown,
-                          multi: multi,
                           headerTitle: header,
                           searchDecoration: miniSearchDecoration(context: context, text: 'Search'.i18n),
                           objectType: objectType,
-                          parentSelection: parentSelection,
+                          damSelection: damSelection,
                           sireSelection: sireSelection,
                           currentSelection: fieldCurrent,
                           origin: origin,
                           excludeOrigin: excludeOrigin
+                        )).then((returnValue) => returnValue != null? fieldSetter(returnValue) : null);
+                  },
+                ),
+              )),
+        ),
+      ),
+    ],
+  );
+}
+
+Widget multiLinkInputButton(
+    {@required BuildContext context,
+      @required String header,
+      @required String hint,
+      @required IconData icon,
+      @required String objectType,
+      bool hideSearch = false,
+      bool hideDropdown = false,
+      @required ValueSetter fieldSetter,
+      @required Set<String> fieldCurrent,
+      @required List<String> currentId,
+      bool disabled = false,
+      String disabledHint = "",
+      @required String origin,
+      bool excludeOrigin = true}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: <Widget>[
+      Text(
+        header,
+        style: GoogleFonts.notoSans(
+            color: Colors.white,
+            fontSize: displayWidth(context) * 0.03,
+            fontWeight: FontWeight.bold),
+      ),
+      verticalSpace(context, 0.01),
+      AnimatedOpacity(
+        opacity: disabled? 0.5 : 1.0,
+        duration: Duration(milliseconds: 200),
+        child: Container(
+          alignment: Alignment.centerLeft,
+          height: displayHeight(context) * 0.067,
+          width: displayWidth(context) * 0.75,
+          decoration: roundedShadowDecoration(
+              context: context, color: secondaryRed(), size: 0.015),
+          padding: EdgeInsets.symmetric(horizontal: displayWidth(context) * 0.02),
+          child: Center(
+              child: Container(
+                child: FlatButton(
+                  padding:
+                  EdgeInsets.symmetric(horizontal: displayWidth(context) * 0.004),
+                  child: Row(
+                    children: <Widget>[
+                      Icon(icon,
+                          color: Colors.white, size: displayWidth(context) * 0.065),
+                      horizontalSpace(context, 0.03),
+                      fieldCurrent == null || disabled
+                          ? Text(
+                        disabled? disabledHint : hint,
+                        style: GoogleFonts.notoSans(
+                            color: Colors.white54,
+                            fontSize: displayWidth(context) * 0.035),
+                      )
+                          : currentId == null? Center(child: SizedBox(width: displayWidth(context) * 0.05, height: displayWidth(context) * 0.05,child: loadingIndicator(context: context, color: Colors.white))) :
+                      Flexible(
+                        child: Text(
+                          currentId.join(', '),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: GoogleFonts.notoSans(
+                              color: Colors.white,
+                              fontSize: displayWidth(context) * 0.04),
+                        ),
+                      )
+                    ],
+                  ),
+                  onPressed: disabled? null : () {
+                    showDialog(
+                        barrierDismissible: false,
+                        context: context,
+                        builder: (_) => MultiLinkSelectionDialog(
+                            hideSearch: hideSearch,
+                            hideDropdown: hideDropdown,
+                            headerTitle: header,
+                            searchDecoration: miniSearchDecoration(context: context, text: 'Search'.i18n),
+                            objectType: objectType,
+                            currentSelection: fieldCurrent,
+                            origin: origin,
+                            excludeOrigin: excludeOrigin
                         )).then((returnValue) => returnValue != null? fieldSetter(returnValue) : null);
                   },
                 ),

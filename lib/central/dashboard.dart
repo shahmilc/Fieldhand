@@ -11,15 +11,19 @@ import 'package:fieldhand/computation/transitions.dart';
 import 'package:fieldhand/database/globals.dart' as globals;
 
 class Dashboard extends StatefulWidget {
-  Dashboard({Key key}) : super(key: key);
+  Dashboard({Key key, @required this.farmId}) : super(key: key);
 
   final String routeName = 'Dashboard';
+  final String farmId;
 
   @override
-  _DashboardState createState() => _DashboardState();
+  _DashboardState createState() => _DashboardState(farmId);
 }
 
 class _DashboardState extends State<Dashboard> {
+
+  _DashboardState(this.farmId);
+  final String farmId;
 
   @override
   void initState() {
@@ -32,7 +36,7 @@ class _DashboardState extends State<Dashboard> {
     return WillPopScope(
       onWillPop: () => onBackPress(context: context),
       child: Scaffold(
-          drawer: SideDrawer(),
+          drawer: SideDrawer(farmId: farmId),
           body: CustomScrollView(
             slivers: <Widget>[
               SliverAppBar(

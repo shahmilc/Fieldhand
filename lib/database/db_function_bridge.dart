@@ -1,4 +1,5 @@
 import 'package:fieldhand/database/database_core.dart';
+import 'package:fieldhand/database/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fieldhand/objects/animal.dart';
@@ -35,10 +36,11 @@ Future<Set> readColumn({@required String objectTable, @required String objectCol
   return uniqueColumnItems;
 }
 
-save({@required String objectTable, @required object}) async {
-  DatabaseHelper helper = DatabaseHelper.instance;
-  int id = await helper.insertObject(objectTable: Animal.table, object: object);
-  print('inserted row: $id');
+save({@required String farmId, @required String objectTable, @required object}) async {
+  FirebaseCore().insertObject(farmId: farmId, objectTable: objectTable, object: object);
+  //DatabaseHelper helper = DatabaseHelper.instance;
+  //int id = await helper.insertObject(objectTable: Animal.table, object: object);
+  //print('inserted row: $id');
 }
 
 update({@required String objectTable, @required object}) async {
@@ -70,13 +72,26 @@ Future<Set> queryAll() async {
   return objectSet;
 }
 
-querySerial({@required String table, @required String serial}) async {
+queryTableSerial({@required String table, @required String serial}) async {
   DatabaseHelper helper = DatabaseHelper.instance;
   var object;
 
   if (table == Animal.table) {
     var rawData = await helper.queryObjectSerial(objectTable: table, objectColumns: Animal.columns, objectSerial: serial);
     object = Animal.fromMap(rawData);
+  }
+  return object;
+}
+
+queryAllSerial({@required String serial}) async {
+  DatabaseHelper helper = DatabaseHelper.instance;
+  var object;
+
+  var rawData = await helper.queryObjectSerial(objectTable: Animal.table, objectColumns: Animal.columns, objectSerial: serial);
+  if (rawData != null && rawData.isNotEmpty) {
+    object = Animal.fromMap(rawData);
+  } else {
+
   }
   return object;
 }

@@ -84,7 +84,7 @@ class _ImageSelectionDialogState extends State<ImageSelectionDialog> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           verticalSpace(context, 0.02),
-          cardHeader(context: context, text: widget.headerTitle),
+          headerText(context: context, text: widget.headerTitle),
           verticalSpace(context, 0.02),
         ],
       ),

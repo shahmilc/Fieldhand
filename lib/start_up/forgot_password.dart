@@ -38,7 +38,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     child: Column(
                       children: <Widget>[
                         verticalSpace(context, 0.03),
-                        cardHeader(context: context, text: "Reset Password".i18n),
+                        headerText(context: context, text: "Reset Password".i18n),
                         verticalSpace(context, 0.02),
                         inputForm(context: context, header: "Email".i18n, hint: "Enter your email".i18n, icon: Icons.email),
                       ],

@@ -1,4 +1,5 @@
 import 'package:fieldhand/database/db_function_bridge.dart';
+import 'package:fieldhand/database/firebase_core.dart';
 import 'package:fieldhand/screen_sizing.dart';
 import 'package:fieldhand/widgets/elements.dart';
 import 'package:fieldhand/widgets/selection_dialogs/selection_dialog_elements.dart';
@@ -9,6 +10,7 @@ import 'package:fieldhand/extentions/string_extensions.dart';
 import 'package:fieldhand/translations/animal.i18n.dart';
 
 class OptionSelectionDialog extends StatefulWidget {
+  final String farmId;
   final String headerTitle;
   final String objectTable;
   final String objectColumns;
@@ -19,7 +21,8 @@ class OptionSelectionDialog extends StatefulWidget {
   final bool sortAlpha;
 
   OptionSelectionDialog(
-      {@required this.headerTitle,
+      {@required this.farmId,
+        @required this.headerTitle,
       this.hideSearch,
       this.searchDecoration,
       this.sortAlpha = false,
@@ -68,7 +71,7 @@ class _OptionSelectionDialogState extends State<OptionSelectionDialog> {
                     horizontal: displayWidth(context) * 0.05),
                 child: Column(
                   children: <Widget>[
-                    cardHeader(context: context, text: widget.headerTitle),
+                    headerText(context: context, text: widget.headerTitle),
                     verticalSpace(context, 0.02),
                     searchBar(context: context, filterFunction: _filterElements, searchDecoration: widget.searchDecoration),
                     verticalSpace(context, 0.02),
@@ -101,7 +104,7 @@ class _OptionSelectionDialogState extends State<OptionSelectionDialog> {
                   )
                   : loadingIndicator(context: context)),
           scrollIndicator(context: context, scrollLeft: _scrollLeft),
-          buttonRow(context: context, selection: _selected?.trim()?.capitalize(), disabled: (_selected == null || _selected.trim() == ''))
+          selectionButtonRow(context: context, selection: _selected?.trim()?.capitalize(), disabled: (_selected == null || _selected.trim() == ''))
         ],
       );
 
@@ -124,7 +127,7 @@ class _OptionSelectionDialogState extends State<OptionSelectionDialog> {
 
   /// Populates set with default types and unique types from database
   void _getSet() async {
-    _setElements = await readColumn(objectTable: widget.objectTable, objectColumn: widget.objectColumns);
+    _setElements = await FirebaseCore().retrieveDataOptions(farmId: widget.farmId, objectTable: widget.objectTable, option: widget.objectColumns, defaults: widget.defaultOptions);
     if (widget.defaultOptions != null) _setElements.addAll(widget.defaultOptions);
     if (widget.currentSelection != null) _setElements.add(widget.currentSelection);
     _viewElements.addAll(_setElements);

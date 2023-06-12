@@ -1,5 +1,6 @@
 import 'package:fieldhand/branch/animal_entry.dart';
 import 'package:fieldhand/computation/navigation.dart';
+import 'package:fieldhand/database/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fieldhand/screen_sizing.dart';
@@ -11,8 +12,9 @@ class CentralSliverAppBar extends StatefulWidget {
 
   final String headerText;
   final Function(String) onSearch;
+  final String farmId;
 
-  CentralSliverAppBar({@required this.headerText, @required this.onSearch});
+  CentralSliverAppBar({@required this.farmId, @required this.headerText, @required this.onSearch});
 
   @override
   _CentralSliverAppBarState createState() => _CentralSliverAppBarState();
@@ -99,7 +101,7 @@ class _CentralSliverAppBarState extends State<CentralSliverAppBar> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  _sideButton(text: 'Add'.i18n, icon: Icons.add, function: () {navigate(context: context, page: AnimalEntry(edit: false), direction: 'right', fromDrawer: false);}),
+                  _sideButton(text: 'Add'.i18n, icon: Icons.add, function: () {navigate(context: context, page: AnimalEntry(farmId: widget.farmId, edit: false), direction: 'right', fromDrawer: false);}),
                   horizontalSpace(context, 0.02),
                   _searchField(),
                   horizontalSpace(context, 0.02),

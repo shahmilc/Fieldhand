@@ -9,20 +9,22 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:i18n_extension/default.i18n.dart';
 
-Widget generalBlueButton({@required BuildContext context, @required String text, void Function() function, bool disabled = false}) {
+Widget generalBlueButton({@required BuildContext context, @required String text, void Function() function, bool disabled = false, bool loading = false}) {
   return Opacity(
     opacity: disabled? 0.5 : 1.0,
     child: Container(
       width: displayWidth(context) * 0.75,
       height: displayHeight(context) * 0.07,
-      child: RaisedButton(
-        disabledColor: Color(0xFF5CBDEA),
-        elevation: 5,
-        color: Color(0xFF5CBDEA),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(displayWidth(context) * 0.015),
+      child: ElevatedButton(
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF5CBDEA)),
+          elevation: MaterialStateProperty.all<double>(5.0),
+          shape: MaterialStateProperty.all<OutlinedBorder>(RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(displayWidth(context) * 0.015)))
         ),
-        child: Text(
+        child: loading?
+          loadingIndicator(context: context, color: Colors.white, sizeFactor: 0.8) :
+          Text(
           text,
           style: GoogleFonts.notoSans(
               textStyle: TextStyle(color: Colors.white),
@@ -126,7 +128,7 @@ Widget topBar({@required BuildContext context}) {
   );
 }
 
-Widget inputForm({@required BuildContext context, @required String header, @required String hint, bool obscure = false, @required IconData icon, bool invert = false, Function onChanged, int maxLength = 30, TextEditingController editingController}) {
+Widget inputForm({@required BuildContext context, @required String header, @required String hint, bool obscure = false, @required IconData icon, bool invert = false, Function onChanged, int maxLength = 30, TextEditingController editingController, Iterable<String> autoFillHints}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
@@ -144,6 +146,7 @@ Widget inputForm({@required BuildContext context, @required String header, @requ
         width: displayWidth(context) * 0.75,
         decoration: roundedShadowDecoration(context: context, color: secondaryRed(), size: 0.015),
         child: TextField(
+          autofillHints: autoFillHints,
           controller: editingController,
           onChanged: onChanged,
           obscureText: obscure,
@@ -197,13 +200,13 @@ Widget textDivider({@required BuildContext context, @required String text, @requ
   ) : Container();
 }
 
-Widget cardHeader({@required BuildContext context, @required String text}) {
+Widget headerText({@required BuildContext context, @required String text, inverted: false, size: 0.06}) {
   return Container(
       child: Text(
     text,
     style: GoogleFonts.notoSans(
-        textStyle: TextStyle(color: Color(0xFFFF6159)),
-        fontSize: displayWidth(context) * 0.06,
+        textStyle: TextStyle(color: inverted? Colors.white : primaryRed()),
+        fontSize: displayWidth(context) * size,
         fontWeight: FontWeight.w800),
   ));
 }
@@ -262,16 +265,29 @@ Widget contactUsRow({@required BuildContext context, @required String text1, @re
   );
 }
 
-loadingIndicator({@required BuildContext context, Color color}) {
-  return Center(
-    child: SizedBox(
-      height: displayWidth(context) * 0.12,
-      width: displayWidth(context) * 0.12,
-      child: CircularProgressIndicator(
-        valueColor: color != null? AlwaysStoppedAnimation<Color>(color) : AlwaysStoppedAnimation<Color>(primaryRed()),
-        strokeWidth: 1,
+loadingIndicator({@required BuildContext context, Color color, double sizeFactor = 1.0, bool showLogo = false}) {
+  return Stack(
+    children: [
+      Center(
+        child: SizedBox(
+          height: displayWidth(context) * 0.12 * sizeFactor,
+          width: displayWidth(context) * 0.12 * sizeFactor,
+          child: CircularProgressIndicator(
+            valueColor: color != null? AlwaysStoppedAnimation<Color>(color) : AlwaysStoppedAnimation<Color>(primaryRed()),
+            strokeWidth: 1,
+          ),
+        ),
       ),
-    ),
+      Opacity(
+        opacity: showLogo? 1 : 0,
+        child: Center(
+          child: SizedBox(
+            height: displayWidth(context) * 0.065 * sizeFactor,
+            width: displayWidth(context) * 0.065 * sizeFactor,
+            child: Image.asset('assets/img/icon/letter.png')),
+        )
+        ),
+    ],
   );
 }
 

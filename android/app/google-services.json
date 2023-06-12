@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "546632087617",
+    "project_id": "fieldhand-eba59",
+    "storage_bucket": "fieldhand-eba59.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:546632087617:android:ce0a881ddb76ac339a2ec0",
+        "android_client_info": {
+          "package_name": "com.northbytesoftworks.fieldhand"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "546632087617-q91k3vm3etgknqgbc66fe4rhurvf10vi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.northbytesoftworks.fieldhand",
+            "certificate_hash": "107fe17dd62584d43dcbebefea999f16026317ee"
+          }
+        },
+        {
+          "client_id": "546632087617-obnsumj0cp4kvj97um72cqvcc981hcd2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6pMMR6vNdNx2gMDuBUNLP4hQMbPLJ3v0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "546632087617-obnsumj0cp4kvj97um72cqvcc981hcd2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

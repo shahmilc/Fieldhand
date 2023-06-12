@@ -1,3 +1,8 @@
+import 'package:fieldhand/connectivity/auth_connection.dart';
+import 'package:fieldhand/database/firebase_core.dart';
+import 'package:fieldhand/start_up/farm/create_farm.dart';
+import 'package:fieldhand/start_up/farm/farm_selection.dart';
+import 'package:fieldhand/widgets/alert_dialogs.dart';
 import 'package:fieldhand/widgets/style_elements.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,6 +24,11 @@ class CreateProfile extends StatefulWidget {
 }
 
 class _CreateProfileState extends State<CreateProfile> {
+
+  TextEditingController _firstName = TextEditingController();
+  TextEditingController _lastName = TextEditingController();
+  bool _checking = false;
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -45,7 +55,7 @@ class _CreateProfileState extends State<CreateProfile> {
                           child: Column(
                             children: <Widget>[
                               verticalSpace(context, 0.015),
-                              cardHeader(
+                              headerText(
                                   context: context,
                                   text: "Create Profile".i18n),
                               verticalSpace(context, 0.02),
@@ -66,9 +76,7 @@ class _CreateProfileState extends State<CreateProfile> {
                                 ],
                               ),
                               verticalSpace(context, 0.03),
-                              nameInput(),
-                              verticalSpace(context, 0.03),
-                              countrySelection(),
+                              _nameInput(),
                               verticalSpace(context, 0.025)
                             ],
                           ),
@@ -81,13 +89,9 @@ class _CreateProfileState extends State<CreateProfile> {
                 generalBlueButton(
                     context: context,
                     text: "Create".i18n,
-                    function: () {
-                      navigate(
-                          context: context,
-                          page: Dashboard(),
-                          direction: 'right',
-                          fromDrawer: false);
-                    }),
+                    disabled: _checking,
+                    loading: _checking,
+                    function: () {_createProfile();}),
                 verticalSpace(context, 0.02),
               ],
             ),
@@ -97,7 +101,14 @@ class _CreateProfileState extends State<CreateProfile> {
     );
   }
 
-  Widget nameInput() {
+  @override
+  void dispose() {
+    _firstName.dispose();
+    _lastName.dispose();
+    super.dispose();
+  }
+
+  Widget _nameInput() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
@@ -118,6 +129,7 @@ class _CreateProfileState extends State<CreateProfile> {
               width: displayWidth(context) * 0.35,
               decoration: roundedShadowDecoration(context: context, color: secondaryRed(), size: 0.015),
               child: TextField(
+                controller: _firstName,
                 cursorColor: Colors.white,
                 style: GoogleFonts.notoSans(
                     color: Colors.white,
@@ -155,6 +167,7 @@ class _CreateProfileState extends State<CreateProfile> {
               width: displayWidth(context) * 0.35,
               decoration: roundedShadowDecoration(context: context, color: secondaryRed(), size: 0.015),
               child: TextField(
+                controller: _lastName,
                 cursorColor: Colors.white,
                 style: GoogleFonts.notoSans(
                     color: Colors.white,
@@ -176,54 +189,31 @@ class _CreateProfileState extends State<CreateProfile> {
     );
   }
 
-  Widget countrySelection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(
-          "Country".i18n,
-          style: GoogleFonts.notoSans(
-              color: primaryRed(),
-              fontSize: displayWidth(context) * 0.03,
-              fontWeight: FontWeight.bold),
-        ),
-        verticalSpace(context, 0.01),
-        Container(
-          alignment: Alignment.centerLeft,
-          height: displayHeight(context) * 0.067,
-          width: displayWidth(context) * 0.75,
-          decoration: roundedShadowDecoration(
-              context: context, color: secondaryRed(), size: 0.015),
-          padding: EdgeInsets.symmetric(horizontal: displayWidth(context) * 0.02),
-          child: Center(
-            child: CountryCodePicker(
-              textStyle: GoogleFonts.notoSans(
-                  color: Colors.white, fontSize: displayWidth(context) * 0.04),
-              // Initial selection and favorite can be one of code ('IT') OR dial_code('+39')
-              initialSelection: 'US',
-              dialogTextStyle: GoogleFonts.notoSans(
-                  color: Colors.black54, fontSize: displayWidth(context) * 0.04),
-              favorite: ['US', 'CA', 'AU', 'GB', 'FR', 'DE', 'RU'],
-              // optional. Shows only country name and flag
-              showCountryOnly: true,
-              showDropIcon: true,
-              searchStyle: GoogleFonts.notoSans(
-                  color: Colors.white, fontSize: displayWidth(context) * 0.04),
-              searchDecoration: InputDecoration(
-                hintText: 'Search'.i18n,
-                border: InputBorder.none,
-                hintStyle: GoogleFonts.notoSans(
-                    color: Colors.white54,
-                    fontSize: displayWidth(context) * 0.035),
-              ),
-              // optional. Shows only country name and flag when popup is closed.
-              showOnlyCountryWhenClosed: true,
-              // optional. aligns the flag and the Text left
-              alignLeft: true,
-            ),
-          ),
-        ),
-      ],
-    );
+  _createProfile() async {
+    setState(() {
+      _checking = true;
+    });
+    if (_firstName.text.trim().length > 0 && _lastName.text.trim().length > 0) {
+      if (await FirebaseCore().addUser(firstName: _firstName.text.trim(), lastName: _lastName.text.trim())) {
+        navigate(
+            context: context,
+            page: FarmSelection(),
+            direction: 'right',
+            fromDrawer: false);
+      } else {
+        showErrorDialog(
+            context: context,
+            headerText: 'Unable to create profile'.i18n,
+            bodyText: 'Please try again.'.i18n);
+      }
+    } else {
+      showErrorDialog(
+          context: context,
+          headerText: 'Enter valid name'.i18n,
+          bodyText: 'Please enter a valid first and last name.'.i18n);
+    }
+    setState(() {
+      _checking = false;
+    });
   }
 }

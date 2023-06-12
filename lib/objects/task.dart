@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:fieldhand/computation/general_functions.dart';
 
 /// Task Table Columns
@@ -42,8 +44,8 @@ class Task {
   String objectType;
   int priority;
   String deadline;
-  String subjects;
-  String staff;
+  Set subjects;
+  Set staff;
   String notes;
   DateTime editDate;
   String editUser;
@@ -58,8 +60,8 @@ class Task {
     objectType = map[columnType];
     priority = map[columnPriority];
     deadline = map[columnDeadline];
-    subjects = map[columnSubjects];
-    staff = map[columnStaff];
+    subjects = jsonDecode(map[columnSubjects]);
+    staff = jsonDecode(map[columnStaff]);
     notes = map[columnNotes];
     editDate = map[columnEditDate];
     editUser = map[columnEditUser];
@@ -73,8 +75,8 @@ class Task {
       columnActive: active? 1 : 0,
       columnType: objectType,
       columnPriority: priority,
-      columnSubjects: subjects,
-      columnStaff: staff,
+      columnSubjects: jsonEncode(subjects),
+      columnStaff: jsonEncode(staff),
       columnNotes: notes,
       columnEditDate: editDate,
       columnEditUser: editUser,
@@ -98,6 +100,6 @@ class Task {
   set setDeadline(String value) => this.deadline = value;
 
   /// Setters for links
-  set setSubjects(String value) => this.subjects = value;
+  set setSubjects(Set value) => this.subjects = value;
 
 }

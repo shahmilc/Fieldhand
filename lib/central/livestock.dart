@@ -16,15 +16,19 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:fieldhand/translations/dashboard.i18n.dart';
 
 class Livestock extends StatefulWidget {
-  Livestock({Key key}) : super(key: key);
+  Livestock({Key key, @required this.farmId}) : super(key: key);
 
   final String routeName = 'Livestock';
+  final String farmId;
 
   @override
-  _LivestockState createState() => _LivestockState();
+  _LivestockState createState() => _LivestockState(farmId);
 }
 
 class _LivestockState extends State<Livestock> {
+
+  _LivestockState(this.farmId);
+  final String farmId;
 
   bool dataLoaded = false;
   Set _animals = Set();
@@ -44,10 +48,10 @@ class _LivestockState extends State<Livestock> {
     return WillPopScope(
       onWillPop: () => onBackPress(context: context),
       child: Scaffold(
-          drawer: SideDrawer(),
+          drawer: SideDrawer(farmId: farmId),
           body: CustomScrollView(
             slivers: <Widget>[
-              CentralSliverAppBar(headerText: 'Livestock'.i18n, onSearch: (value) => _filterElements(value)),
+              CentralSliverAppBar(farmId: farmId, headerText: 'Livestock'.i18n, onSearch: (value) => _filterElements(value)),
               SliverList(
                 // Use a delegate to build items as they're scrolled on screen.
                 delegate: SliverChildBuilderDelegate(

@@ -1,5 +1,4 @@
 import 'package:fieldhand/central/livestock.dart';
-import 'package:fieldhand/computation/general_functions.dart';
 import 'package:fieldhand/database/db_function_bridge.dart';
 import 'package:fieldhand/objects/task.dart';
 import 'package:fieldhand/widgets/add_object_elements.dart';
@@ -16,11 +15,12 @@ import 'package:google_fonts/google_fonts.dart';
 
 class TaskEntry extends StatefulWidget {
 
-  TaskEntry({@required this.edit, this.task});
+  TaskEntry({@required this.edit, this.task, this.currentObject});
 
   final String routeName = 'TaskEntry';
   final bool edit;
   final Task task;
+  final String currentObject;
 
   @override
   _TaskEntryState createState() => _TaskEntryState();
@@ -29,7 +29,7 @@ class TaskEntry extends StatefulWidget {
 class _TaskEntryState extends State<TaskEntry> {
   String originalId;
   Task task;
-  Map links = Map<String, String>();
+  Map links = Map<String, List<String>>();
 
   bool saveSafe = false;
   bool hasDeadline = false;
@@ -45,16 +45,47 @@ class _TaskEntryState extends State<TaskEntry> {
   ValueSetter setterDeadline;
 
   /// Setter wrapper functions for links
-  ValueSetter setterLinks, setterStaff;
+  ValueSetter setterSubjects, setterStaff;
 
   void initializeWrapperFunctions() {
     setterPriority = (selection) => setState((){task.setPriority = selection; saveCheck();});
     setterObjectType = (selection) => setState((){task.objectType = selection; saveCheck();});
     setterDeadline = (date) => setState((){task.deadline = date; saveCheck();});
+    setterSubjects = (selection) {
+      print(selection);
+      print(selection.runtimeType);
+      task.subjects = selection.toSet();
+      print("RUN TYPE: ");
+      print(task.subjects.runtimeType);
+      findLinks();
+      saveCheck();
+    };
   }
 
   void findLinks() async {
+    if (task.subjects != null) {
+      links['subjectsId'] = List<String>();
+      task.subjects.forEach((element) async {
+        links['subjectsId'].add(getIdentifier(object: await queryAllSerial(serial: element)));
+      });
+    } else if (widget.currentObject != null) {
+      links['subjectsId'].add(await queryAllSerial(serial: widget.currentObject));
+    }
 
+    if (task.staff != null) {
+      links['staffId'].addAll(task.staff.forEach((element) async {
+        await queryAllSerial(serial: element);
+      }));
+    } else if (widget.currentObject != null) {
+      links['staffId'].add(await queryAllSerial(serial: widget.currentObject));
+    }
+    setState(() {});
+    print(links['subjectsId']);
+  }
+
+  String getIdentifier({@required object}) {
+    setState(() {});
+    return object.displayIdentifier;
   }
 
   @override
@@ -136,27 +167,26 @@ class _TaskEntryState extends State<TaskEntry> {
                     disabledHint: 'No Deadline'.i18n,
                     future: true,
                     bottomSpace: true),
-                linkInputButton(
+                multiLinkInputButton(
                     context: context,
                     header: 'Subjects'.i18n,
                     hint: 'Select Subjects',
                     icon: Icons.art_track,
                     objectType: task.objectType,
-                    fieldSetter: setterLinks,
+                    fieldSetter: setterSubjects,
                     fieldCurrent: task.subjects,
-                    multi: true,
-                    currentId: links['sireId'],
+                    currentId: links['subjectsId'],
                     origin: task.serial),
                 verticalSpace(context, 0.03),
-                linkInputButton(
+                multiLinkInputButton(
                     context: context,
                     header: 'Assign Staff'.i18n,
                     hint: 'Select Staff',
                     icon: CustomIcons.users,
                     objectType: task.objectType,
                     fieldSetter: setterStaff,
-                    fieldCurrent: task.subjects,
-                    currentId: links['sireId'],
+                    fieldCurrent: task.staff,
+                    currentId: links['staffId'],
                     origin: task.serial),
                 verticalSpace(context, 0.03),
                 textArea(

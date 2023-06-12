@@ -9,35 +9,31 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:i18n_extension/default.i18n.dart';
 
-class LinkSelectionDialog extends StatefulWidget {
+class MultiLinkSelectionDialog extends StatefulWidget {
   final String headerTitle;
   final String objectType;
-  final bool damSelection;
-  final bool sireSelection;
-  final String currentSelection;
+  final Set<String> currentSelection;
   final bool hideSearch;
   final bool hideDropdown;
   final InputDecoration searchDecoration;
   final String origin;
   final bool excludeOrigin;
 
-  LinkSelectionDialog(
+  MultiLinkSelectionDialog(
       {@required this.headerTitle,
         @required this.hideSearch,
         @required this.hideDropdown,
         @required this.searchDecoration,
         @required this.objectType,
-        @required this.damSelection,
-        @required this.sireSelection,
         @required this.currentSelection,
         @required this.origin,
         @required this.excludeOrigin});
 
   @override
-  State<StatefulWidget> createState() => _LinkSelectionDialogState();
+  State<StatefulWidget> createState() => _MultiLinkSelectionDialogState();
 }
 
-class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
+class _MultiLinkSelectionDialogState extends State<MultiLinkSelectionDialog> {
   ScrollController _controller = ScrollController();
   Set _tableElements = Set();
   Set _setElements = Set();
@@ -47,7 +43,7 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
   bool _scrollLeft = false;
   String showType;
   String searchQuery = "";
-  String _selected;
+  Set<String> _selected = Set();
 
   @override
   void dispose() {
@@ -90,14 +86,14 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
           width: displayWidth(context) * 0.7,
           child: _dataLoaded
               ? Stack(
-                children: [
-                  noResults(context: context, opaque: _viewElements.isEmpty),
-                  mainList(controller: _controller, item: _animalTile, itemCount: _viewElements.length)
-                ],
-              )
+            children: [
+              noResults(context: context, opaque: _viewElements.isEmpty),
+              mainList(controller: _controller, item: _animalTile, itemCount: _viewElements.length)
+            ],
+          )
               : loadingIndicator(context: context)),
       scrollIndicator(context: context, scrollLeft: _scrollLeft),
-      selectionButtonRow(context: context, selection: _selected, disabled: (_selected == null || _selected.trim() == ''))
+      selectionButtonRow(context: context, selection: _selected, disabled: (_selected == null || _selected.isEmpty))
     ],
   );
 
@@ -106,7 +102,7 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
     super.initState();
     setState(() {
       _dataLoaded = false;
-      _selected = widget.currentSelection;
+      if (widget.currentSelection != null) _selected.addAll(widget.currentSelection);
     });
     _getObjects();
     scrollListen();
@@ -119,20 +115,11 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
   }
 
   void _getObjects() async {
-    if (widget.damSelection || widget.sireSelection) {
-      showType = widget.objectType;
-      String querySex = widget.sireSelection? 'Male' : 'Female';
-      _tableElements = await queryType(table: Animal.table);
-      if (widget.excludeOrigin) _tableElements.removeWhere((element) => element.serial == widget.origin);
-      _setElements = _tableElements.where((element) => element.objectType == showType && element.sex == querySex).toSet();
-      _viewElements.addAll(_setElements);
-    } else {
-      showType = 'All';
-      _tableElements = await queryAll();
-      if (widget.excludeOrigin) _tableElements.removeWhere((element) => element.serial == widget.origin);
-      _setElements.addAll(_tableElements);
-      _viewElements.addAll(_setElements);
-    }
+    showType = 'All';
+    _tableElements = await queryAll();
+    if (widget.excludeOrigin) _tableElements.removeWhere((element) => element.serial == widget.origin);
+    _setElements.addAll(_tableElements);
+    _viewElements.addAll(_setElements);
     _buildTypeList();
     setState(() {
       _dataLoaded = true;
@@ -141,48 +128,25 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
   }
 
   void _changeMasterSet({@required String newValue}) {
-    if (widget.damSelection || widget.sireSelection) {
-      showType = newValue;
-      String querySex = widget.sireSelection ? 'Male' : 'Female';
-      _setElements = showType == 'All' ?
-      _tableElements.where((element) => element.sex == querySex).toSet() :
-      _tableElements.where((element) =>
-      element.objectType == showType && element.sex == querySex).toSet();
-      _viewElements.clear();
-      _viewElements.addAll(_setElements);
-      _filterElements(searchQuery);
-    } else {
-      showType = newValue;
-      _setElements = showType == 'All'?
-      _tableElements.where((element) => '${element.runtimeType}' == showType).toSet() :
-      _tableElements;
-      _viewElements.clear();
-      _viewElements.addAll(_setElements);
-      _filterElements(searchQuery);
-    }
+    showType = newValue;
+    _setElements = showType == 'All'?
+    _tableElements.where((element) => '${element.runtimeType}' == showType).toSet() :
+    _tableElements;
+    _viewElements.clear();
+    _viewElements.addAll(_setElements);
+    _filterElements(searchQuery);
   }
 
   void _buildTypeList() async {
     if (!widget.hideDropdown) {
-      if (widget.damSelection || widget.sireSelection) {
-        Set rawType = await readColumn(
-            objectTable: Animal.table, objectColumn: Animal.typeColumn);
-        rawType.add(widget.objectType);
-        _typeOptions['All'] = 'All'.i18n;
-        for (int i = 0; i < rawType.length; i++) {
-          String element = rawType.elementAt(i);
-          _typeOptions[element] = element.i18n;
-        }
-      } else {
-        _typeOptions = {
-          'All' : 'All'.i18n,
-          'Animal': 'Animal'.i18n,
-          'Machine': 'Machine'.i18n,
-          'Field': 'Field'.i18n,
-          'Property': 'Property'.i18n,
-          'Staff': 'Staff'.i18n
-        };
-      }
+      _typeOptions = {
+        'All' : 'All'.i18n,
+        'Animal': 'Animal'.i18n,
+        'Machine': 'Machine'.i18n,
+        'Field': 'Field'.i18n,
+        'Property': 'Property'.i18n,
+        'Staff': 'Staff'.i18n
+      };
     }
   }
 
@@ -223,7 +187,7 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
   Widget _animalTile({@required int index}) {
     var item = _viewElements.elementAt(index);
     bool isAnimal = item.runtimeType == Animal;
-    bool isCurrent = _selected == item.serial;
+    bool isCurrent = _selected.contains(item.serial);
     return Center(
       child: Container(
         margin: EdgeInsets.symmetric(vertical: displayHeight(context) * 0.01, horizontal: displayWidth(context) * 0.02),
@@ -270,9 +234,9 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
           ),
           onPressed: () {
             setState(() {
-              _selected = item.serial;
+              _selected.contains(item.serial)? _selected.remove(item.serial) : _selected.add(item.serial);
             });
-            },
+          },
         ),
       ),
     );
@@ -303,7 +267,7 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
       maxLines: 1,
     );
   }
-  
+
   Widget typeText({@required String typeText}) {
     return Text(
       typeText,
@@ -330,11 +294,11 @@ class _LinkSelectionDialogState extends State<LinkSelectionDialog> {
             items: _typeOptions.keys.map((element) {
               return DropdownMenuItem<String>(
                 child: Text(_typeOptions[element], style: GoogleFonts.notoSans(
-                  color: showType == element? primaryRed() : Colors.black38,
-                  fontSize: displayWidth(context) * 0.03,
-                  fontWeight: showType == element? FontWeight.bold : FontWeight.normal),),
-              value: element,
-            );}).toList(),
+                    color: showType == element? primaryRed() : Colors.black38,
+                    fontSize: displayWidth(context) * 0.03,
+                    fontWeight: showType == element? FontWeight.bold : FontWeight.normal),),
+                value: element,
+              );}).toList(),
             onChanged: (value) => _changeMasterSet(newValue: value),
           ),
         )

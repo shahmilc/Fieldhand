@@ -18,7 +18,7 @@ Widget mainList({@required ScrollController controller, @required Widget item({@
   );
 }
 
-Widget buttonRow({@required BuildContext context, @required String selection, @required bool disabled}) {
+Widget selectionButtonRow({@required BuildContext context, @required selection, @required bool disabled}) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: <Widget>[

@@ -5,7 +5,7 @@ import 'package:fieldhand/translations/animal.i18n.dart';
 
 /// Livestock Table Columns
 
-final String tableLivestock = 'livestock_table';
+final String tableLivestock = 'livestock';
 final String columnId = 'name_id';
 final String columnDisplayId = 'display_name_id';
 final String columnThumb = 'thumb_location';
