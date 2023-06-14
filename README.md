@@ -2,7 +2,7 @@
 
 # Farm & Livestock Management App
 
-Fieldhand is your all-in-one farm management app. Keep track of all your livestock, equipment, staff, and more.
+Fieldhand is your all-in-one farm management app. Keep track of all your livestock, equipment, staff, and more. Fieldhand helps you manage your workflow so that you can focus on what matters.
 
 ## Multilingual Support & Easy Authentication
 
@@ -24,7 +24,7 @@ Capture images directly from your device's camera or upload your own images to a
 
 ![Livestock!](/assets/img/readme/2.png)
 
-### Add Assets and Tasks
+## Add Assets and Tasks
 
 Detail a multitude of attributes when adding assets, such as status and acquisition date.
 
