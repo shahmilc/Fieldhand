@@ -10,6 +10,7 @@ Fieldhand is available in 9 different languages, enabling a friendly experience 
 
 Conveniently sign up using your email address or log in with your Google or Facebook account, ensuring a seamless and secure login experience.
 
+
 ![Sign-in and language!](/assets/img/readme/1.png)
 
 ## Livestock and Asset Tracking
@@ -20,6 +21,7 @@ Easily add, update, and remove livestock entries, keeping track of their health,
 
 Capture images directly from your device's camera or upload your own images to associate with your asset entries. 
 
+
 ![Livestock!](/assets/img/readme/2.png)
 
 ### Add Assets and Tasks
@@ -27,5 +29,6 @@ Capture images directly from your device's camera or upload your own images to a
 Detail a multitude of attributes when adding assets, such as status and acquisition date.
 
 Simplify your farm's workflow by creating tasks. Assign tasks to staff members, set priority levels, and establish deadlines through an intuitive interface.
+
 
 ![Adding animals and tasks!](/assets/img/readme/3.png)
