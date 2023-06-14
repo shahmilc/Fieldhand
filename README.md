@@ -31,5 +31,6 @@ Simplify your farm's workflow by creating tasks. Assign tasks to staff members, 
 ![Adding animals and tasks!](/assets/img/readme/3.png)
 
 ## Video UI Demonstration
-
-https://github.com/shahmilc/Fieldhand/assets/64994036/200c0cb7-6ca6-4643-8187-1b6541ef7737
+<div align="center">
+  https://github.com/shahmilc/Fieldhand/assets/64994036/200c0cb7-6ca6-4643-8187-1b6541ef7737
+</div>
