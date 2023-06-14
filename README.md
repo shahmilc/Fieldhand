@@ -32,4 +32,4 @@ Simplify your farm's workflow by creating tasks. Assign tasks to staff members, 
 
 ## Video UI Demonstration
 
-![Video Demo!](/assets/img/readme/video_demo.mov)
+https://raw.githubusercontent.com/shahmilc/Fieldhand/master/assets/img/readme/video_demo.mov
