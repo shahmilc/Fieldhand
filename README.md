@@ -32,5 +32,12 @@ Simplify your farm's workflow by creating tasks. Assign tasks to staff members, 
 
 ## Video UI Demonstration
 
-https://github.com/shahmilc/Fieldhand/assets/64994036/200c0cb7-6ca6-4643-8187-1b6541ef7737
+<div align="center">
+  https://github.com/shahmilc/Fieldhand/assets/64994036/200c0cb7-6ca6-4643-8187-1b6541ef7737
+</div>
+
+<div align="center">
+  <video src="assets/img/readme/video_demo.mov" width="400" />
+</div>
+
 
