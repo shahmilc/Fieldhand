@@ -2,7 +2,7 @@
 
 # Farm & Livestock Management App
 
-Fieldhand is your all-in-one farm management app. Keep track of all your livestock, equipment, staff, and more. Fieldhand helps you manage your workflow so that you can focus on what matters.
+Fieldhand is your all-in-one farm management app. Keep track of all your livestock, equipment, staff, and more. Built using Flutter, Fieldhand helps you manage your workflow so that you can focus on what matters.
 
 ## Multilingual Support & Easy Authentication
 
